@@ -1,9 +1,13 @@
-% MatIngBib.m - MATLAB Matematisk Ingenioerbibliotek til 01911 "Matematisk Analyse og Modellering"
+% MatIngBib.m - MATLAB Matematisk Ingeniøerbibliotek til Danmarks Tekniske Universitet - 01911 "Matematisk Analyse og Modellering"
 % Dette bibliotek giver praktiske funktioner til at loese opgaver indenfor:
 % - Komplekse tal
 % - Polynomier
 % - Taylorpolynomier
 % - Differentialligninger
+%
+% Forfatter: Frederik Tots
+% Version: 1.0
+% Dato: 2/4/2025
 
 classdef MatIngBib
     methods(Static)
@@ -434,87 +438,87 @@ classdef MatIngBib
         %% TAYLOR POLYNOMIER %%
         
         function koeff = taylorPoly(func, x0, n)
-    % Beregner koefficienter for Taylor-polynomium af orden n
-    % for funktion func omkring x0
-    % 
-    % Input:
-    %   func - Funktion handle (f.eks. @exp, @sin eller @(x) x^2)
-    %   x0   - Udviklingspunkt (hvor Taylor-rækken centreres)
-    %   n    - Orden af Taylor-polynomiet
-    %
-    % Output:
-    %   koeff - Vektor med koefficienter [a_0, a_1, a_2, ..., a_n]
-    %           hvor a_i er koefficienten for (x-x0)^i / i!
-    %
-    % Eksempler:
-    %   k = taylorPoly(@exp, 0, 3)
-    %   % Giver [1, 1, 0.5, 0.166...] svarende til 1 + x + x^2/2 + x^3/6
-    %
-    %   k = taylorPoly(@(x) sin(x), 0, 5)
-    %   % Giver [0, 1, 0, -1/6, 0, 1/120] svarende til x - x^3/6 + x^5/120
+        % Beregner koefficienter for Taylor-polynomium af orden n
+        % for funktion func omkring x0
+        % 
+        % Input:
+        %   func - Funktion handle (f.eks. @exp, @sin eller @(x) x^2)
+        %   x0   - Udviklingspunkt (hvor Taylor-rækken centreres)
+        %   n    - Orden af Taylor-polynomiet
+        %
+        % Output:
+        %   koeff - Vektor med koefficienter [a_0, a_1, a_2, ..., a_n]
+        %           hvor a_i er koefficienten for (x-x0)^i / i!
+        %
+        % Eksempler:
+        %   k = taylorPoly(@exp, 0, 3)
+        %   % Giver [1, 1, 0.5, 0.166...] svarende til 1 + x + x^2/2 + x^3/6
+        %
+        %   k = taylorPoly(@(x) sin(x), 0, 5)
+        %   % Giver [0, 1, 0, -1/6, 0, 1/120] svarende til x - x^3/6 + x^5/120
 
-    % Kontroller input
-    if ~isa(func, 'function_handle')
-        error('func skal være et funktion handle');
-    end
-    
-    if ~isscalar(x0) || ~isnumeric(x0)
-        error('x0 skal være et skalart tal');
-    end
-    
-    if ~isscalar(n) || ~isnumeric(n) || n < 0 || mod(n,1) ~= 0
-        error('n skal være et ikke-negativt heltal');
-    end
-    
-    % Brug symbolsk matematik hvis muligt
-    try
-        syms x;
-        f = func(x);
-        koeff = zeros(1, n+1);
-        for i = 0:n
-            df = diff(f, i);
-            koeff(i+1) = double(subs(df, x, x0)) / factorial(i);
+        % Kontroller input
+        if ~isa(func, 'function_handle')
+            error('func skal være et funktion handle');
         end
-    catch
-        % Numerisk tilnærmelse hvis symbolsk metode fejler
-        koeff = zeros(1, n+1);
-        h = 1e-8;
+    
+        if ~isscalar(x0) || ~isnumeric(x0)
+            error('x0 skal være et skalart tal');
+        end
+    
+        if ~isscalar(n) || ~isnumeric(n) || n < 0 || mod(n,1) ~= 0
+            error('n skal være et ikke-negativt heltal');
+        end
+    
+        % Brug symbolsk matematik hvis muligt
+        try
+            syms x;
+            f = func(x);
+            koeff = zeros(1, n+1);
+            for i = 0:n
+                df = diff(f, i);
+                koeff(i+1) = double(subs(df, x, x0)) / factorial(i);
+            end
+        catch
+            % Numerisk tilnærmelse hvis symbolsk metode fejler
+            koeff = zeros(1, n+1);
+            h = 1e-8;
         
-        % Beregn funktion og numeriske afledte
-        koeff(1) = func(x0);  % 0'te afledte = funktionsværdi
+            % Beregn funktion og numeriske afledte
+            koeff(1) = func(x0);  % 0'te afledte = funktionsværdi
         
-        % For højere ordens afledte
-        for i = 1:n
-            % Implementer en mere præcis numerisk differentiationsmetode
-            if i == 1
-                % Centreret differenskvotient for første afledte
-                koeff(i+1) = (func(x0 + h) - func(x0 - h)) / (2 * h);
-            else
-                % Brug finitte differenser for højere ordens afledte
-                df = zeros(1, 2*i+1);
-                x_vals = x0 + (-i:i) * h;
+            % For højere ordens afledte
+            for i = 1:n
+                % Implementer en mere præcis numerisk differentiationsmetode
+                if i == 1
+                    % Centreret differenskvotient for første afledte
+                    koeff(i+1) = (func(x0 + h) - func(x0 - h)) / (2 * h);
+                else
+                    % Brug finitte differenser for højere ordens afledte
+                    df = zeros(1, 2*i+1);
+                    x_vals = x0 + (-i:i) * h;
                 
-                for j = 1:length(x_vals)
-                    df(j) = func(x_vals(j));
-                end
-                
-                % Beregn i'te afledte ved centreret differenskvotient
-                for j = 1:i
-                    for k = 1:length(df)-1
-                        df(k) = (df(k+1) - df(k)) / h;
+                    for j = 1:length(x_vals)
+                        df(j) = func(x_vals(j));
                     end
-                    df = df(1:end-1);
-                end
                 
-                koeff(i+1) = df(1) / factorial(i);
+                    % Beregn i'te afledte ved centreret differenskvotient
+                    for j = 1:i
+                        for k = 1:length(df)-1
+                            df(k) = (df(k+1) - df(k)) / h;
+                        end
+                        df = df(1:end-1);
+                    end
+                
+                    koeff(i+1) = df(1) / factorial(i);
+                end
             end
         end
-    end
     
-    % Håndtér numeriske unøjagtigheder - rund meget små værdier til 0
-    tol = 1e-12;
-    koeff(abs(koeff) < tol) = 0;
-end
+        % Håndtér numeriske unøjagtigheder - rund meget små værdier til 0
+        tol = 1e-12;
+        koeff(abs(koeff) < tol) = 0;
+        end
         
         function vaerdi = evaluerTaylor(koeff, x0, x)
             % Evaluerer et Taylor-polynomium ved vaerdi x

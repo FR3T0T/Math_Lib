@@ -4,14 +4,30 @@
 % - Fourier transformation og rækker
 % - Lineære tidsinvariante systemer
 % - Differentialligninger
+%
+% Forfatter: Frederik Tots
+% Version: 1.0
+% Dato: 2/4/2025
 
 classdef ElektroMatBib
     methods(Static)
         %% HJÆLPEFUNKTIONER %%
         
         function tekst = unicode_dansk(inputTekst)
-            % Konverterer mellem almindelige erstatninger og unicode for danske tegn
-            % Fx. 'oe' -> Unicode for 'ø'
+            % UNICODE_DANSK Konverterer mellem almindelige erstatninger og unicode for danske tegn
+            %
+            % Syntax:
+            %   tekst = ElektroMatBib.unicode_dansk(inputTekst)
+            %
+            % Input:
+            %   inputTekst - Tekst med erstatninger ('ae', 'oe', 'aa', etc.)
+            % 
+            % Output:
+            %   tekst - Tekst med unicode-tegn ('æ', 'ø', 'å', etc.)
+            %
+            % Eksempel:
+            %   s = ElektroMatBib.unicode_dansk('loes differentialligning')
+            %   % Resultat: "løs differentialligning"
             
             % Definer de danske tegn som Unicode escape-koder
             ae_small = char(230);  % æ
@@ -34,7 +50,13 @@ classdef ElektroMatBib
         end
         
         function demoProgrammet()
-            % Viser brug af biblioteket med eksempler
+            % DEMOPROGRAMMET Viser brug af biblioteket med eksempler
+            %
+            % Syntax:
+            %   ElektroMatBib.demoProgrammet()
+            %
+            % Denne funktion viser eksempler på de vigtigste funktioner i biblioteket
+            
             fprintf('ElektroMatBib - Videregående Matematik Bibliotek Demonstrationer\n');
             fprintf('==================================================\n\n');
             
@@ -57,9 +79,14 @@ classdef ElektroMatBib
             
             % Demo af Fourier-rækker
             fprintf('3. FOURIER RÆKKER DEMO:\n');
-            T = 2*pi;
-            % Vis en periodisk signal og dens Fourier-rækker (grafisk)
-            ElektroMatBib.visFourierRaekker(@(t) square(t), T, 10);
+            try
+                T = 2*pi;
+                % Vis en periodisk signal og dens Fourier-rækker (grafisk)
+                ElektroMatBib.visFourierRaekker(@(t) square(t), T, 10);
+                fprintf('Fourierrækker beregnet og visualiseret.\n');
+            catch e
+                fprintf('Kunne ikke vise Fourier-rækker demo: %s\n', e.message);
+            end
             fprintf('\n');
             
             % Demo af LTI system
@@ -68,19 +95,74 @@ classdef ElektroMatBib
             a = [1 0.5 2];  % koefficienter: a_n, a_{n-1}, ..., a_0
             b = [1];        % koefficienter: b_m, b_{m-1}, ..., b_0
             [num, den] = ElektroMatBib.diffLigningTilOverfoeringsfunktion(b, a);
-            fprintf('Overføringsfunktion: H(s) = ');
+            fprintf('Overføringsfunktion H(s) = \n');
             ElektroMatBib.visPolynomBroek(num, den);
             fprintf('\n');
             
             % Vis impulsrespons grafisk
-            ElektroMatBib.visImpulsrespons(num, den);
+            try
+                ElektroMatBib.visImpulsrespons(num, den);
+                fprintf('Impulsrespons visualiseret.\n');
+            catch e
+                fprintf('Kunne ikke vise impulsrespons: %s\n', e.message);
+            end
+            
+            % Løs en komplet opgave
+            fprintf('\n5. KOMPLET OPGAVELØSNING DEMO:\n');
+            fprintf('Opgave: Analyser et andenordens LTI-system med differentialligningen:\n');
+            fprintf('y'''' + 0.5y'' + 2y = x(t)\n');
+            fprintf('Find systemets overføringsfunktion, poler, impulsrespons og steprespons\n\n');
+            
+            % Vis overføringsfunktionen i brøkform
+            fprintf('Overføringsfunktion:\n');
+            ElektroMatBib.visPolynomBroek(num, den);
+            
+            % Analyser differentialligningen
+            fprintf('\nAnalyse af systemet:\n');
+            ElektroMatBib.analyserDifferentialligning(a);
+            
+            % Analyser overføringsfunktionen (find poler og nulpunkter)
+            try
+                syms s;
+                F = poly2sym(num, s) / poly2sym(den, s);
+                [poles, zeros] = ElektroMatBib.analyserLaplace(F);
+            catch e
+                fprintf('Kunne ikke analysere overføringsfunktionen: %s\n', e.message);
+            end
+            
+            % Vis steprespons
+            try
+                fprintf('\nBeregner og plotter steprespons:\n');
+                [t, y] = ElektroMatBib.beregnSteprespons(num, den, [0, 10]);
+                fprintf('Steprespons visualiseret.\n');
+            catch e
+                fprintf('Kunne ikke beregne steprespons: %s\n', e.message);
+            end
+            
+            % Vis Bode-diagram
+            try
+                fprintf('\nViser Bode-diagram:\n');
+                ElektroMatBib.visBodeDiagram(num, den, [0.1, 100]);
+                fprintf('Bode-diagram visualiseret.\n');
+            catch e
+                fprintf('Kunne ikke vise Bode-diagram: %s\n', e.message);
+            end
         end
 
         function kommandoOversigt(kategori)
-            % Viser en oversigt over kommandoer og deres brug i ElektroMatBib
-            % Input: kategori (valgfri) - specificerer en bestemt kategori at vise
+            % KOMMANDOOVERSIGT Viser en oversigt over kommandoer og deres brug i ElektroMatBib
+            %
+            % Syntax:
+            %   ElektroMatBib.kommandoOversigt()             % viser hovedmenuen
+            %   ElektroMatBib.kommandoOversigt('laplace')    % viser laplace funktioner
+            %   ElektroMatBib.kommandoOversigt('fourier')    % viser fourier funktioner
+            %   ElektroMatBib.kommandoOversigt('lti')        % viser LTI funktioner
+            %   ElektroMatBib.kommandoOversigt('diff')       % viser differentialligning funktioner
+            %   ElektroMatBib.kommandoOversigt('hjælp')      % viser hjælpefunktioner
+            %
+            % Input:
+            %   kategori (valgfri) - specificerer en bestemt kategori at vise
             %   Options: 'laplace', 'fourier', 'lti', 'diff', 'hjælp'
-            %   Default: Viser alle kategorier
             
             % Hvis ingen kategori er specificeret, vis hovedmenuen
             if nargin < 1
@@ -100,92 +182,247 @@ classdef ElektroMatBib
                     fprintf('\n=== LAPLACE TRANSFORMATIONS FUNKTIONER ===\n');
                     fprintf('\n--- F = laplace(f, t, s) ---\n');
                     fprintf('Beregner Laplacetransformationen af f(t)\n');
+                    fprintf('Syntax:\n');
+                    fprintf('  F = ElektroMatBib.laplace(f)         %% Bruger symbolske variable t og s\n');
+                    fprintf('  F = ElektroMatBib.laplace(f, t)      %% Bruger symbolsk variabel s\n');
+                    fprintf('  F = ElektroMatBib.laplace(f, t, s)   %% Specificerer både t og s\n');
+                    fprintf('Eksempel:\n');
+                    fprintf('  syms t s\n');
+                    fprintf('  f = exp(-2*t);\n');
+                    fprintf('  F = ElektroMatBib.laplace(f, t, s)   %% Resultat: 1/(s+2)\n');
                     
                     fprintf('\n--- f = inversLaplace(F, s, t) ---\n');
                     fprintf('Beregner den inverse Laplacetransformation af F(s)\n');
+                    fprintf('Syntax:\n');
+                    fprintf('  f = ElektroMatBib.inversLaplace(F)         %% Bruger symbolske variable s og t\n');
+                    fprintf('  f = ElektroMatBib.inversLaplace(F, s)      %% Bruger symbolsk variabel t\n');
+                    fprintf('  f = ElektroMatBib.inversLaplace(F, s, t)   %% Specificerer både s og t\n');
+                    fprintf('Eksempel:\n');
+                    fprintf('  syms s t\n');
+                    fprintf('  F = 1/(s^2 + 4);\n');
+                    fprintf('  f = ElektroMatBib.inversLaplace(F, s, t)   %% Resultat: (1/2)*sin(2*t)\n');
                     
                     fprintf('\n--- tabel = laplaceTransformationsTabel() ---\n');
                     fprintf('Viser en tabel over almindelige Laplacetransformationer\n');
+                    fprintf('Syntax:\n');
+                    fprintf('  ElektroMatBib.laplaceTransformationsTabel()\n');
                     
                     fprintf('\n--- [poles, zeros] = analyserLaplace(F) ---\n');
                     fprintf('Analyserer poler og nulpunkter i en Laplacetransformation\n');
+                    fprintf('Syntax:\n');
+                    fprintf('  [poles, zeros] = ElektroMatBib.analyserLaplace(F)   %% F er et symbolsk udtryk\n');
+                    fprintf('Eksempel:\n');
+                    fprintf('  syms s\n');
+                    fprintf('  F = (s+1)/((s+2)*(s^2+4));\n');
+                    fprintf('  [poles, zeros] = ElektroMatBib.analyserLaplace(F)\n');
                     
                 case 'fourier'
                     fprintf('\n=== FOURIER FUNKTIONER ===\n');
                     
                     fprintf('\n--- [a0, an, bn] = fourierKoefficienter(f, T, n) ---\n');
                     fprintf('Beregner Fourier-koefficienter for en periodisk funktion\n');
+                    fprintf('Syntax:\n');
+                    fprintf('  [a0, an, bn] = ElektroMatBib.fourierKoefficienter(f, T, n)\n');
+                    fprintf('Input:\n');
+                    fprintf('  f - funktion handle @(t) ...\n');
+                    fprintf('  T - periode\n');
+                    fprintf('  n - antal led i rækken\n');
+                    fprintf('Eksempel:\n');
+                    fprintf('  f = @(t) square(t);  %% Firkantsignal\n');
+                    fprintf('  T = 2*pi;\n');
+                    fprintf('  n = 10;\n');
+                    fprintf('  [a0, an, bn] = ElektroMatBib.fourierKoefficienter(f, T, n)\n');
                     
                     fprintf('\n--- visFourierRaekker(f, T, n) ---\n');
                     fprintf('Visualiserer Fourier-rækker for en periodisk funktion\n');
+                    fprintf('Syntax:\n');
+                    fprintf('  ElektroMatBib.visFourierRaekker(f, T, n)\n');
+                    fprintf('Eksempel:\n');
+                    fprintf('  f = @(t) square(t);\n');
+                    fprintf('  T = 2*pi;\n');
+                    fprintf('  n = 20;\n');
+                    fprintf('  ElektroMatBib.visFourierRaekker(f, T, n)\n');
                     
                     fprintf('\n--- F = fourierTransform(f, t, omega) ---\n');
                     fprintf('Beregner Fourier-transformationen af f(t)\n');
+                    fprintf('Syntax:\n');
+                    fprintf('  F = ElektroMatBib.fourierTransform(f, t, omega)\n');
+                    fprintf('Eksempel:\n');
+                    fprintf('  syms t omega\n');
+                    fprintf('  f = exp(-abs(t));\n');
+                    fprintf('  F = ElektroMatBib.fourierTransform(f, t, omega)\n');
                     
                     fprintf('\n--- visFrekvensspektrum(f, t_range) ---\n');
                     fprintf('Visualiserer amplitudespektrum og fasespektrum for en funktion\n');
+                    fprintf('Syntax:\n');
+                    fprintf('  ElektroMatBib.visFrekvensspektrum(f, [t_min, t_max])\n');
+                    fprintf('Eksempel:\n');
+                    fprintf('  f = @(t) exp(-t).*sin(2*pi*5*t).*(t>=0);\n');
+                    fprintf('  ElektroMatBib.visFrekvensspektrum(f, [0, 2])\n');
                     
                 case 'lti'
                     fprintf('\n=== LTI SYSTEM FUNKTIONER ===\n');
                     
                     fprintf('\n--- [num, den] = diffLigningTilOverfoeringsfunktion(b, a) ---\n');
-                    fprintf('Konverterer diff.ligning til overføringsfunktion\n');
+                    fprintf('Konverterer differentialligning til overføringsfunktion\n');
+                    fprintf('Syntax:\n');
+                    fprintf('  [num, den] = ElektroMatBib.diffLigningTilOverfoeringsfunktion(b, a)\n');
+                    fprintf('Input:\n');
+                    fprintf('  b - koefficienter for input [b_m, b_{m-1}, ..., b_0]\n');
+                    fprintf('  a - koefficienter for output [a_n, a_{n-1}, ..., a_0]\n');
+                    fprintf('Eksempel:\n');
+                    fprintf('  %% y'''' + 0.5y'' + 2y = x(t)\n');
+                    fprintf('  a = [1 0.5 2];\n');
+                    fprintf('  b = [1];\n');
+                    fprintf('  [num, den] = ElektroMatBib.diffLigningTilOverfoeringsfunktion(b, a)\n');
                     
                     fprintf('\n--- H = overfoer(num, den, s) ---\n');
                     fprintf('Evaluerer overføringsfunktionen ved værdi s\n');
+                    fprintf('Syntax:\n');
+                    fprintf('  H = ElektroMatBib.overfoer(num, den, s)\n');
+                    fprintf('Eksempel:\n');
+                    fprintf('  num = [1];\n');
+                    fprintf('  den = [1 0.5 2];\n');
+                    fprintf('  H = ElektroMatBib.overfoer(num, den, 1i)   %% Evaluerer ved s = i\n');
                     
                     fprintf('\n--- [mag, phase] = bode(num, den, omega) ---\n');
                     fprintf('Beregner amplituderespons og faserespons ved frekvens omega\n');
+                    fprintf('Syntax:\n');
+                    fprintf('  [mag, phase] = ElektroMatBib.bode(num, den, omega)\n');
+                    fprintf('Eksempel:\n');
+                    fprintf('  num = [1];\n');
+                    fprintf('  den = [1 0.5 2];\n');
+                    fprintf('  [mag, phase] = ElektroMatBib.bode(num, den, 2)\n');
+                    fprintf('  %% Konverter til dB: mag_db = 20*log10(mag)\n');
+                    fprintf('  %% Konverter til grader: phase_deg = phase*180/pi\n');
                     
                     fprintf('\n--- visBodeDiagram(num, den, omega_range) ---\n');
                     fprintf('Visualiserer Bode-diagram for et LTI-system\n');
+                    fprintf('Syntax:\n');
+                    fprintf('  ElektroMatBib.visBodeDiagram(num, den, [omega_min, omega_max])\n');
+                    fprintf('Eksempel:\n');
+                    fprintf('  num = [1];\n');
+                    fprintf('  den = [1 0.5 2];\n');
+                    fprintf('  ElektroMatBib.visBodeDiagram(num, den, [0.1, 100])\n');
                     
                     fprintf('\n--- visImpulsrespons(num, den) ---\n');
                     fprintf('Visualiserer impulsrespons for et LTI-system\n');
+                    fprintf('Syntax:\n');
+                    fprintf('  ElektroMatBib.visImpulsrespons(num, den)\n');
+                    fprintf('Eksempel:\n');
+                    fprintf('  num = [1];\n');
+                    fprintf('  den = [1 0.5 2];\n');
+                    fprintf('  ElektroMatBib.visImpulsrespons(num, den)\n');
                     
                     fprintf('\n--- [t, y] = beregnSteprespons(num, den, t_range) ---\n');
                     fprintf('Beregner steprespons for et LTI-system\n');
+                    fprintf('Syntax:\n');
+                    fprintf('  [t, y] = ElektroMatBib.beregnSteprespons(num, den, [t_min, t_max])\n');
+                    fprintf('Eksempel:\n');
+                    fprintf('  num = [1];\n');
+                    fprintf('  den = [1 0.5 2];\n');
+                    fprintf('  [t, y] = ElektroMatBib.beregnSteprespons(num, den, [0, 10])\n');
                     
                 case 'diff'
                     fprintf('\n=== DIFFERENTIALLIGNING FUNKTIONER ===\n');
                     
                     fprintf('\n--- [t, y] = loesLineaerODE(a, f, init_cond, t_range) ---\n');
-                    fprintf('Løser lineær diff.ligning med konstante koefficienter\n');
+                    fprintf('Løser lineær differentialligning med konstante koefficienter\n');
+                    fprintf('Syntax:\n');
+                    fprintf('  [t, y] = ElektroMatBib.loesLineaerODE(a, f, init_cond, [t_min, t_max])\n');
+                    fprintf('Input:\n');
+                    fprintf('  a - koefficienter [a_n, a_{n-1}, ..., a_0]\n');
+                    fprintf('  f - funktion handle @(t) eller 0 for homogen ligning\n');
+                    fprintf('  init_cond - begyndelsesbetingelser [y(0), y''(0), ..., y^(n-1)(0)]\n');
+                    fprintf('Eksempel:\n');
+                    fprintf('  %% Løs y'''' + 0.5y'' + 2y = 0 med y(0)=1, y''(0)=0\n');
+                    fprintf('  a = [1 0.5 2];\n');
+                    fprintf('  f = 0;  %% homogen ligning\n');
+                    fprintf('  init_cond = [1; 0];\n');
+                    fprintf('  [t, y] = ElektroMatBib.loesLineaerODE(a, f, init_cond, [0, 10])\n');
                     
                     fprintf('\n--- [partiel] = partielBroekopdeling(num, den) ---\n');
                     fprintf('Foretager partiel brøkopløsning af en rationel funktion\n');
+                    fprintf('Syntax:\n');
+                    fprintf('  [partiel] = ElektroMatBib.partielBroekopdeling(num, den)\n');
+                    fprintf('Eksempel:\n');
+                    fprintf('  num = [1 0];\n');
+                    fprintf('  den = [1 3 2];  %% s^2 + 3s + 2 = (s+1)(s+2)\n');
+                    fprintf('  ElektroMatBib.partielBroekopdeling(num, den)\n');
                     
                     fprintf('\n--- analyserDifferentialligning(a) ---\n');
                     fprintf('Analyserer en differentialligning og klassificerer den\n');
+                    fprintf('Syntax:\n');
+                    fprintf('  ElektroMatBib.analyserDifferentialligning(a)\n');
+                    fprintf('Eksempel:\n');
+                    fprintf('  %% Analyser y'''' + 0.5y'' + 2y = 0\n');
+                    fprintf('  a = [1 0.5 2];\n');
+                    fprintf('  ElektroMatBib.analyserDifferentialligning(a)\n');
                     
                 case 'hjælp'
                     fprintf('\n=== HJÆLPEFUNKTIONER ===\n');
                     
                     fprintf('\n--- tekst = unicode_dansk(inputTekst) ---\n');
                     fprintf('Konverterer tekst med erstatninger til unicode-tegn for danske bogstaver\n');
+                    fprintf('Syntax:\n');
+                    fprintf('  tekst = ElektroMatBib.unicode_dansk(inputTekst)\n');
+                    fprintf('Eksempel:\n');
+                    fprintf('  s = ElektroMatBib.unicode_dansk(''loes differentialligning'')\n');
+                    fprintf('  %% Resultat: "løs differentialligning"\n');
                     
                     fprintf('\n--- demoProgrammet() ---\n');
                     fprintf('Viser brug af biblioteket med eksempler\n');
+                    fprintf('Syntax:\n');
+                    fprintf('  ElektroMatBib.demoProgrammet()\n');
                     
                     fprintf('\n--- kommandoOversigt([kategori]) ---\n');
                     fprintf('Viser en oversigt over kommandoer og deres brug i ElektroMatBib\n');
+                    fprintf('Syntax:\n');
+                    fprintf('  ElektroMatBib.kommandoOversigt()             %% viser hovedmenuen\n');
+                    fprintf('  ElektroMatBib.kommandoOversigt(''laplace'')    %% viser laplace funktioner\n');
+                    fprintf('  ElektroMatBib.kommandoOversigt(''fourier'')    %% viser fourier funktioner\n');
+                    fprintf('  ElektroMatBib.kommandoOversigt(''lti'')        %% viser LTI funktioner\n');
+                    fprintf('  ElektroMatBib.kommandoOversigt(''diff'')       %% viser differentialligning funktioner\n');
+                    fprintf('  ElektroMatBib.kommandoOversigt(''hjælp'')      %% viser hjælpefunktioner\n');
+                    
+                    fprintf('\n--- visPolynomBroek(num, den) ---\n');
+                    fprintf('Visualiserer et polynomium i brøkform\n');
+                    fprintf('Syntax:\n');
+                    fprintf('  ElektroMatBib.visPolynomBroek(num, den)\n');
+                    fprintf('Eksempel:\n');
+                    fprintf('  num = [1 2];  %% s + 2\n');
+                    fprintf('  den = [1 3 2];  %% s^2 + 3s + 2\n');
+                    fprintf('  ElektroMatBib.visPolynomBroek(num, den)\n');
                     
                 otherwise
                     fprintf('\nUkendt kategori: %s\n', kategori);
                     fprintf('Gyldige kategorier: ''laplace'', ''fourier'', ''lti'', ''diff'', ''hjælp''\n');
+                    fprintf('Prøv igen med en gyldig kategori eller kald kommandoOversigt() uden argumenter\n');
             end
         end
         
         %% LAPLACE TRANSFORMATIONER %%
         
         function F = laplace(f, t, s)
-            % Beregner Laplacetransformationen af f(t)
+            % LAPLACE Beregner Laplacetransformationen af f(t)
+            %
+            % Syntax:
+            %   F = ElektroMatBib.laplace(f)         % Bruger symbolske variable t og s
+            %   F = ElektroMatBib.laplace(f, t)      % Bruger symbolsk variabel s
+            %   F = ElektroMatBib.laplace(f, t, s)   % Specificerer både t og s
+            %
             % Input:
             %   f - funktion af t (symbolsk)
             %   t - tidsvariabel (symbolsk)
             %   s - kompleks variabel (symbolsk)
+            % 
             % Output:
             %   F - Laplacetransformationen F(s)
+            %
+            % Eksempel:
+            %   syms t s
+            %   f = exp(-2*t);
+            %   F = ElektroMatBib.laplace(f, t, s)   % Resultat: 1/(s+2)
             
             % Brug MATLAB's symbolske motor til at beregne Laplace-transformationen
             if nargin < 3
@@ -200,13 +437,25 @@ classdef ElektroMatBib
         end
         
         function f = inversLaplace(F, s, t)
-            % Beregner den inverse Laplacetransformation af F(s)
+            % INVERSLAPLACE Beregner den inverse Laplacetransformation af F(s)
+            %
+            % Syntax:
+            %   f = ElektroMatBib.inversLaplace(F)         % Bruger symbolske variable s og t
+            %   f = ElektroMatBib.inversLaplace(F, s)      % Bruger symbolsk variabel t
+            %   f = ElektroMatBib.inversLaplace(F, s, t)   % Specificerer både s og t
+            %
             % Input:
             %   F - funktion af s (symbolsk)
             %   s - kompleks variabel (symbolsk)
             %   t - tidsvariabel (symbolsk)
+            % 
             % Output:
             %   f - den oprindelige funktion f(t)
+            %
+            % Eksempel:
+            %   syms s t
+            %   F = 1/(s^2 + 4);
+            %   f = ElektroMatBib.inversLaplace(F, s, t)   % Resultat: (1/2)*sin(2*t)
             
             % Brug MATLAB's symbolske motor til at beregne den inverse Laplace-transformation
             if nargin < 3
@@ -221,7 +470,13 @@ classdef ElektroMatBib
         end
         
         function tabel = laplaceTransformationsTabel()
-            % Viser en tabel over almindelige Laplacetransformationer
+            % LAPLACETRANSFORMATIONSTABEL Viser en tabel over almindelige Laplacetransformationer
+            %
+            % Syntax:
+            %   ElektroMatBib.laplaceTransformationsTabel()
+            %
+            % Denne funktion viser en tabel over almindelige Laplacetransformationer
+            % og deres betingelser for gyldighed.
             
             % Definer tabellen over almindelige Laplace-transformationer
             tabel = {
@@ -236,7 +491,7 @@ classdef ElektroMatBib
                 'e^(at)*sin(bt)', 'b/((s-a)^2 + b^2)', 'Re(s) > Re(a)';
                 'e^(at)*cos(bt)', '(s-a)/((s-a)^2 + b^2)', 'Re(s) > Re(a)';
                 't*sin(at)', '2as/(s^2 + a^2)^2', 'Re(s) > 0';
-                't*cos(at)', 's^2 - a^2)/(s^2 + a^2)^2', 'Re(s) > 0';
+                't*cos(at)', '(s^2 - a^2)/(s^2 + a^2)^2', 'Re(s) > 0';
                 't^n*e^(at)', 'n!/(s-a)^(n+1)', 'Re(s) > Re(a), n ≥ 0 heltal';
             };
             
@@ -252,12 +507,22 @@ classdef ElektroMatBib
         end
         
         function [poles, zeros] = analyserLaplace(F)
-            % Analyserer poler og nulpunkter i en Laplacetransformation
+            % ANALYSERLAPLACE Analyserer poler og nulpunkter i en Laplacetransformation
+            %
+            % Syntax:
+            %   [poles, zeros] = ElektroMatBib.analyserLaplace(F)
+            %
             % Input:
             %   F - symbolsk udtryk for Laplacetransformationen F(s)
+            % 
             % Output:
             %   poles - vector med polerne
             %   zeros - vektor med nulpunkterne
+            %
+            % Eksempel:
+            %   syms s
+            %   F = (s+1)/((s+2)*(s^2+4));
+            %   [poles, zeros] = ElektroMatBib.analyserLaplace(F)
             
             syms s;
             
@@ -281,15 +546,26 @@ classdef ElektroMatBib
         %% FOURIER RÆKKER OG TRANSFORMATION %%
         
         function [a0, an, bn] = fourierKoefficienter(f, T, n)
-            % Beregner Fourier-koefficienter for en periodisk funktion
+            % FOURIERKOEFFICIENTER Beregner Fourier-koefficienter for en periodisk funktion
+            %
+            % Syntax:
+            %   [a0, an, bn] = ElektroMatBib.fourierKoefficienter(f, T, n)
+            %
             % Input:
             %   f - funktion handle @(t) ...
             %   T - periode
             %   n - antal led i rækken (order)
+            % 
             % Output:
             %   a0 - konstant led
             %   an - cosinus koefficienter [a1, a2, ..., an]
             %   bn - sinus koefficienter [b1, b2, ..., bn]
+            %
+            % Eksempel:
+            %   f = @(t) square(t);  % Firkantsignal
+            %   T = 2*pi;
+            %   n = 10;
+            %   [a0, an, bn] = ElektroMatBib.fourierKoefficienter(f, T, n)
             
             % Grundfrekvens
             omega = 2*pi/T;
@@ -309,11 +585,21 @@ classdef ElektroMatBib
         end
         
         function visFourierRaekker(f, T, n)
-            % Visualiserer Fourier-rækker for en periodisk funktion
+            % VISFOURIERRAEKKER Visualiserer Fourier-rækker for en periodisk funktion
+            %
+            % Syntax:
+            %   ElektroMatBib.visFourierRaekker(f, T, n)
+            %
             % Input:
             %   f - funktion handle @(t) ...
             %   T - periode
             %   n - antal led i rækken (order)
+            %
+            % Eksempel:
+            %   f = @(t) square(t);
+            %   T = 2*pi;
+            %   n = 20;
+            %   ElektroMatBib.visFourierRaekker(f, T, n)
             
             % Beregn Fourier-koefficienter
             [a0, an, bn] = ElektroMatBib.fourierKoefficienter(f, T, n);
@@ -384,13 +670,23 @@ classdef ElektroMatBib
         end
         
         function F = fourierTransform(f, t, omega)
-            % Beregner Fourier-transformationen af f(t)
+            % FOURIERTRANSFORM Beregner Fourier-transformationen af f(t)
+            %
+            % Syntax:
+            %   F = ElektroMatBib.fourierTransform(f, t, omega)
+            %
             % Input:
             %   f - funktion af t (symbolsk)
             %   t - tidsvariabel (symbolsk)
             %   omega - frekvens variabel (symbolsk)
+            % 
             % Output:
             %   F - Fourier-transformationen F(omega)
+            %
+            % Eksempel:
+            %   syms t omega
+            %   f = exp(-abs(t));
+            %   F = ElektroMatBib.fourierTransform(f, t, omega)
             
             % Brug MATLAB's symbolske motor til at beregne Fourier-transformationen
             if nargin < 3
@@ -405,10 +701,18 @@ classdef ElektroMatBib
         end
         
         function visFrekvensspektrum(f, t_range)
-            % Visualiserer amplitudespektrum og fasespektrum for en funktion
+            % VISFREKVENSSPEKTRUM Visualiserer amplitudespektrum og fasespektrum for en funktion
+            %
+            % Syntax:
+            %   ElektroMatBib.visFrekvensspektrum(f, [t_min, t_max])
+            %
             % Input:
             %   f - funktion handle @(t) ...
             %   t_range - [t_min, t_max] tidsinterval
+            %
+            % Eksempel:
+            %   f = @(t) exp(-t).*sin(2*pi*5*t).*(t>=0);
+            %   ElektroMatBib.visFrekvensspektrum(f, [0, 2])
             
             % Diskretiser funktionen
             Fs = 1000;  % Samplingsfrekvens
@@ -453,13 +757,24 @@ classdef ElektroMatBib
         %% LTI SYSTEM FUNKTIONER %%
         
         function [num, den] = diffLigningTilOverfoeringsfunktion(b, a)
-            % Konverterer differentialligning til overføringsfunktion
+            % DIFFLIGNINGTILOVERFØRINGSFUNKTION Konverterer differentialligning til overføringsfunktion
+            %
+            % Syntax:
+            %   [num, den] = ElektroMatBib.diffLigningTilOverfoeringsfunktion(b, a)
+            %
             % Input:
             %   b - koefficienter for input [b_m, b_{m-1}, ..., b_0]
             %   a - koefficienter for output [a_n, a_{n-1}, ..., a_0]
+            % 
             % Output:
             %   num - tæller polynomium
             %   den - nævner polynomium
+            %
+            % Eksempel:
+            %   % y'' + 0.5y' + 2y = x(t)
+            %   a = [1 0.5 2];
+            %   b = [1];
+            %   [num, den] = ElektroMatBib.diffLigningTilOverfoeringsfunktion(b, a)
             
             % Sørg for at a og b har korrekt format
             if isempty(a) || a(1) == 0
@@ -478,27 +793,49 @@ classdef ElektroMatBib
         end
         
         function H = overfoer(num, den, s)
-            % Evaluerer overføringsfunktionen ved værdi s
+            % OVERFOER Evaluerer overføringsfunktionen ved værdi s
+            %
+            % Syntax:
+            %   H = ElektroMatBib.overfoer(num, den, s)
+            %
             % Input:
             %   num - tæller polynomium
             %   den - nævner polynomium
             %   s - komplex værdi eller array af værdier
+            % 
             % Output:
             %   H - overføringsfunktionsværdi(er)
+            %
+            % Eksempel:
+            %   num = [1];
+            %   den = [1 0.5 2];
+            %   H = ElektroMatBib.overfoer(num, den, 1i)   % Evaluerer ved s = i
             
             % Evaluer polynomier
             H = polyval(num, s) ./ polyval(den, s);
         end
         
         function [mag, phase] = bode(num, den, omega)
-            % Beregner amplituderespons og faserespons ved frekvens omega
+            % BODE Beregner amplituderespons og faserespons ved frekvens omega
+            %
+            % Syntax:
+            %   [mag, phase] = ElektroMatBib.bode(num, den, omega)
+            %
             % Input:
             %   num - tæller polynomium
             %   den - nævner polynomium
             %   omega - frekvens i rad/s
+            % 
             % Output:
             %   mag - amplituderespons
             %   phase - faserespons i radianer
+            %
+            % Eksempel:
+            %   num = [1];
+            %   den = [1 0.5 2];
+            %   [mag, phase] = ElektroMatBib.bode(num, den, 2)
+            %   % Konverter til dB: mag_db = 20*log10(mag)
+            %   % Konverter til grader: phase_deg = phase*180/pi
             
             % Evaluer overføringsfunktion ved s = j*omega
             s = 1j * omega;
@@ -510,11 +847,20 @@ classdef ElektroMatBib
         end
         
         function visBodeDiagram(num, den, omega_range)
-            % Visualiserer Bode-diagram for et LTI-system
+            % VISBODEDIAGRAM Visualiserer Bode-diagram for et LTI-system
+            %
+            % Syntax:
+            %   ElektroMatBib.visBodeDiagram(num, den, [omega_min, omega_max])
+            %
             % Input:
             %   num - tæller polynomium
             %   den - nævner polynomium
             %   omega_range - [omega_min, omega_max] frekvensinterval
+            %
+            % Eksempel:
+            %   num = [1];
+            %   den = [1 0.5 2];
+            %   ElektroMatBib.visBodeDiagram(num, den, [0.1, 100])
             
             % Genererer frekvensakse (logaritmisk)
             omega = logspace(log10(omega_range(1)), log10(omega_range(2)), 1000);
@@ -549,10 +895,19 @@ classdef ElektroMatBib
         end
         
         function visImpulsrespons(num, den)
-            % Visualiserer impulsrespons for et LTI-system
+            % VISIMPULSRESPONS Visualiserer impulsrespons for et LTI-system
+            %
+            % Syntax:
+            %   ElektroMatBib.visImpulsrespons(num, den)
+            %
             % Input:
             %   num - tæller polynomium
             %   den - nævner polynomium
+            %
+            % Eksempel:
+            %   num = [1];
+            %   den = [1 0.5 2];
+            %   ElektroMatBib.visImpulsrespons(num, den)
             
             % Skab et impuls system
             sys = tf(num, den);
@@ -570,14 +925,24 @@ classdef ElektroMatBib
         end
         
         function [t, y] = beregnSteprespons(num, den, t_range)
-            % Beregner steprespons for et LTI-system
+            % BEREGNSTEPRESPONS Beregner steprespons for et LTI-system
+            %
+            % Syntax:
+            %   [t, y] = ElektroMatBib.beregnSteprespons(num, den, [t_min, t_max])
+            %
             % Input:
             %   num - tæller polynomium
             %   den - nævner polynomium
             %   t_range - [t_min, t_max] tidsinterval
+            % 
             % Output:
             %   t - tidsvektor
             %   y - steprespons
+            %
+            % Eksempel:
+            %   num = [1];
+            %   den = [1 0.5 2];
+            %   [t, y] = ElektroMatBib.beregnSteprespons(num, den, [0, 10])
             
             % Skab et system
             sys = tf(num, den);
@@ -595,10 +960,19 @@ classdef ElektroMatBib
         end
         
         function visPolynomBroek(num, den)
-            % Visualiserer et polynomium i brøkform
+            % VISPOLYNOMBROEK Visualiserer et polynomium i brøkform
+            %
+            % Syntax:
+            %   ElektroMatBib.visPolynomBroek(num, den)
+            %
             % Input:
             %   num - tæller polynomium
             %   den - nævner polynomium
+            %
+            % Eksempel:
+            %   num = [1 2];  % s + 2
+            %   den = [1 3 2];  % s^2 + 3s + 2
+            %   ElektroMatBib.visPolynomBroek(num, den)
             
             syms s;
             
@@ -613,16 +987,27 @@ classdef ElektroMatBib
         %% DIFFERENTIALLIGNING FUNKTIONER %%
         
         function [t, y] = loesLineaerODE(a, f, init_cond, t_range)
-            % Løser lineær differentialligning med konstante koefficienter
-            % a_n*y^(n) + ... + a_1*y' + a_0*y = f(t)
+            % LOESLINEAERODE Løser lineær differentialligning med konstante koefficienter
+            %
+            % Syntax:
+            %   [t, y] = ElektroMatBib.loesLineaerODE(a, f, init_cond, [t_min, t_max])
+            %
             % Input:
             %   a - koefficienter [a_n, a_{n-1}, ..., a_0]
             %   f - funktion handle @(t) eller 0 for homogen ligning
             %   init_cond - begyndelsesbetingelser [y(0), y'(0), ..., y^(n-1)(0)]
             %   t_range - [t_min, t_max] tidsinterval
+            % 
             % Output:
             %   t - tidsvektor
             %   y - løsningsvektor (første søjle er y, anden søjle er y', osv.)
+            %
+            % Eksempel:
+            %   % Løs y'' + 0.5y' + 2y = 0 med y(0)=1, y'(0)=0
+            %   a = [1 0.5 2];
+            %   f = 0;  % homogen ligning
+            %   init_cond = [1; 0];
+            %   [t, y] = ElektroMatBib.loesLineaerODE(a, f, init_cond, [0, 10])
             
             % Orden af differentialligningen
             n = length(a) - 1;
@@ -652,12 +1037,22 @@ classdef ElektroMatBib
         end
         
         function [partiel] = partielBroekopdeling(num, den)
-            % Foretager partiel brøkopløsning af en rationel funktion
+            % PARTIELBROEKOPDELING Foretager partiel brøkopløsning af en rationel funktion
+            %
+            % Syntax:
+            %   [partiel] = ElektroMatBib.partielBroekopdeling(num, den)
+            %
             % Input:
             %   num - tæller polynomium
             %   den - nævner polynomium
+            % 
             % Output:
             %   partiel - cell array med delbrøker
+            %
+            % Eksempel:
+            %   num = [1 0];
+            %   den = [1 3 2];  % s^2 + 3s + 2 = (s+1)(s+2)
+            %   ElektroMatBib.partielBroekopdeling(num, den)
             
             syms s;
             
@@ -714,9 +1109,18 @@ classdef ElektroMatBib
         end
         
         function analyserDifferentialligning(a)
-            % Analyserer en differentialligning og klassificerer den
+            % ANALYSERDIFFERENTIALLIGNING Analyserer en differentialligning og klassificerer den
+            %
+            % Syntax:
+            %   ElektroMatBib.analyserDifferentialligning(a)
+            %
             % Input:
             %   a - koefficienter [a_n, a_{n-1}, ..., a_0]
+            %
+            % Eksempel:
+            %   % Analyser y'' + 0.5y' + 2y = 0
+            %   a = [1 0.5 2];
+            %   ElektroMatBib.analyserDifferentialligning(a)
             
             % Find rødder i det karakteristiske polynomium
             p = roots(a);
