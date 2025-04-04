@@ -1914,5 +1914,992 @@ classdef ElektroMatBibTrinvis
             
             disp(['===== FOURIER-ANALYSE AFSLUTTET FOR ' upper(f_navn) ' =====']);
         end
+        
+        %% FOLDNING OG FOLDNINGSSÆTNING FUNKTIONER %%
+
+function [h, forklaringsOutput] = foldning_med_forklaring(f, g, t, t_range)
+    % FOLDNING_MED_FORKLARING Beregner foldningen af to funktioner med trinvis forklaring
+    %
+    % Syntax:
+    %   [h, forklaringsOutput] = ElektroMatBibTrinvis.foldning_med_forklaring(f, g, t, t_range)
+    %
+    % Input:
+    %   f - første funktion som symbolsk udtryk eller function handle
+    %   g - anden funktion som symbolsk udtryk eller function handle
+    %   t - tidsvariabel (symbolsk)
+    %   t_range - [t_min, t_max] interval for numerisk beregning
+    % 
+    % Output:
+    %   h - resultatet af foldningen
+    %   forklaringsOutput - Struktur med forklaringstrin
+    
+    % Starter forklaring
+    forklaringsOutput = ElektroMatBibTrinvis.startForklaring('Foldning af Funktioner');
+    
+    % Vis de oprindelige funktioner
+    if isa(f, 'function_handle')
+        f_str = func2str(f);
+    else
+        f_str = char(f);
+    end
+    
+    if isa(g, 'function_handle')
+        g_str = func2str(g);
+    else
+        g_str = char(g);
+    end
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 1, ...
+        'Identificer funktionerne', ...
+        'Vi starter med at identificere de to funktioner, der skal foldes.', ...
+        ['f(t) = ' f_str '\ng(t) = ' g_str]);
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 2, ...
+        'Definér foldningsintegralet', ...
+        'Foldningen af to funktioner er defineret som integralet:', ...
+        '(f * g)(t) = ∫ f(τ) · g(t-τ) dτ fra -∞ til ∞');
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 3, ...
+        'Analysér funktionernes støtte', ...
+        'For at optimere beregningen, undersøger vi hvornår funktionerne er forskellige fra nul.', ...
+        'Dette hjælper os med at bestemme integrationsintervallet mere præcist.');
+    
+    % Numerisk beregning af foldningen
+    dt = (t_range(2) - t_range(1)) / 1000;
+    t_values = t_range(1):dt:t_range(2);
+    
+    % Evaluer funktioner hvis de er symbolske
+    if ~isa(f, 'function_handle')
+        syms tau;
+        f_func = matlabFunction(subs(f, t, tau));
+    else
+        f_func = @(tau) f(tau);
+    end
+    
+    if ~isa(g, 'function_handle')
+        g_func = matlabFunction(g);
+    else
+        g_func = g;
+    end
+    
+    % Beregn foldningen for hver t-værdi
+    h_values = zeros(size(t_values));
+    tau_range = t_range(1):dt:t_range(2);
+    
+    for i = 1:length(t_values)
+        t_i = t_values(i);
+        integrand = zeros(size(tau_range));
+        
+        for j = 1:length(tau_range)
+            tau_j = tau_range(j);
+            % Kontroller om vi er inden for domænet hvor begge funktioner er defineret
+            try
+                f_val = f_func(tau_j);
+                g_val = g_func(t_i - tau_j);
+                integrand(j) = f_val * g_val;
+            catch
+                integrand(j) = 0;
+            end
+        end
+        
+        h_values(i) = sum(integrand) * dt; % Tilnærmet integral
+    end
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 4, ...
+        'Numerisk beregning af foldningen', ...
+        'Vi beregner foldningen numerisk ved at approksimere integralet for hver værdi af t.', ...
+        'For hver værdi af t evaluerer vi integralet ∫ f(τ) · g(t-τ) dτ numerisk.');
+    
+    % Resultat
+    h = h_values;
+    
+    % Visualisér resultater
+    figure('Position', [100, 100, 800, 600]);
+    
+    % Plot f(t)
+    subplot(3, 1, 1);
+    f_plot = zeros(size(t_values));
+    for i = 1:length(t_values)
+        try
+            f_plot(i) = f_func(t_values(i));
+        catch
+            f_plot(i) = 0;
+        end
+    end
+    plot(t_values, f_plot, 'LineWidth', 2);
+    title('f(t)');
+    grid on;
+    
+    % Plot g(t)
+    subplot(3, 1, 2);
+    g_plot = zeros(size(t_values));
+    for i = 1:length(t_values)
+        try
+            g_plot(i) = g_func(t_values(i));
+        catch
+            g_plot(i) = 0;
+        end
+    end
+    plot(t_values, g_plot, 'LineWidth', 2);
+    title('g(t)');
+    grid on;
+    
+    % Plot resultat
+    subplot(3, 1, 3);
+    plot(t_values, h_values, 'LineWidth', 2);
+    title('(f * g)(t) - Foldning');
+    grid on;
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 5, ...
+        'Visualisér resultater', ...
+        'Vi plotter de oprindelige funktioner og resultatet af foldningen.', ...
+        '');
+    
+    % Fortolkning af resultatet
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 6, ...
+        'Fortolk foldningsresultatet', ...
+        ['Foldning har følgende egenskaber:\n' ...
+         '1. Kommutativitet: (f * g)(t) = (g * f)(t)\n' ...
+         '2. Associativitet: (f * (g * h))(t) = ((f * g) * h)(t)\n' ...
+         '3. Distributivitet: (f * (g + h))(t) = (f * g)(t) + (f * h)(t)'], ...
+        '');
+    
+    % Sammenhæng med Laplacetransformation
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 7, ...
+        'Relation til Laplacetransformation', ...
+        'Foldningssætningen for Laplacetransformation fortæller os, at:', ...
+        'L{(f * g)(t)} = L{f(t)} · L{g(t)} = F(s) · G(s)');
+    
+    % Afslut
+    forklaringsOutput = ElektroMatBibTrinvis.afslutForklaring(forklaringsOutput, ...
+        'Foldningen er beregnet numerisk og visualiseret.');
+end
+
+function [H, forklaringsOutput] = foldningssaetning_med_forklaring(F, G, s, t)
+    % FOLDNINGSSAETNING_MED_FORKLARING Demonstrerer foldningssætningen med trinvis forklaring
+    %
+    % Syntax:
+    %   [H, forklaringsOutput] = ElektroMatBibTrinvis.foldningssaetning_med_forklaring(F, G, s, t)
+    %
+    % Input:
+    %   F - første Laplacetransformation som symbolsk udtryk
+    %   G - anden Laplacetransformation som symbolsk udtryk
+    %   s - Laplace-variabel (symbolsk)
+    %   t - tidsvariabel (symbolsk)
+    % 
+    % Output:
+    %   H - produktet F(s)·G(s)
+    %   forklaringsOutput - Struktur med forklaringstrin
+    
+    % Starter forklaring
+    forklaringsOutput = ElektroMatBibTrinvis.startForklaring('Foldningssætningen for Laplacetransformation');
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 1, ...
+        'Identificer Laplacetransformationerne', ...
+        'Vi starter med de to Laplace-transformerede funktioner.', ...
+        ['F(s) = ' char(F) '\nG(s) = ' char(G)]);
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 2, ...
+        'Forklar foldningssætningen', ...
+        'Foldningssætningen siger, at produktet af to Laplacetransformationer svarer til Laplacetransformationen af foldningen af de oprindelige funktioner.', ...
+        'L{(f * g)(t)} = F(s) · G(s)');
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 3, ...
+        'Beregn produktet af Laplacetransformationerne', ...
+        'Vi beregner produktet F(s) · G(s).', ...
+        ['H(s) = F(s) · G(s) = ' char(F) ' · ' char(G)]);
+    
+    % Beregn produktet
+    H = F * G;
+    H_simplified = simplify(H);
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 4, ...
+        'Simplifiser resultatet', ...
+        'Vi forenkler udtrykket om muligt.', ...
+        ['H(s) = ' char(H_simplified)]);
+    
+    % Find den inverse Laplacetransformation
+    try
+        h = ElektroMatBib.inversLaplace(H_simplified, s, t);
+        h_str = char(h);
+        
+        forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 5, ...
+            'Find den tilsvarende foldning i tidsdomænet', ...
+            'Ved at anvende invers Laplacetransformation på H(s) finder vi den tilsvarende foldning i tidsdomænet.', ...
+            ['h(t) = L^(-1){H(s)} = (f * g)(t) = ' h_str]);
+    catch
+        forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 5, ...
+            'Find den tilsvarende foldning i tidsdomænet', ...
+            'Den inverse Laplacetransformation kan være kompleks og kræve yderligere algebraiske manipulationer.', ...
+            'h(t) = L^(-1){H(s)} = (f * g)(t)');
+    end
+    
+    % Afslut
+    forklaringsOutput = ElektroMatBibTrinvis.afslutForklaring(forklaringsOutput, ...
+        ['H(s) = ' char(H_simplified)]);
+end
+
+%% SPECIELLE FUNKTIONER %%
+
+function [F, forklaringsOutput] = deltaFunktion_med_forklaring(t0, t, s)
+    % DELTAFUNKTION_MED_FORKLARING Forklarer Dirac's delta-funktion og dens Laplacetransformation
+    %
+    % Syntax:
+    %   [F, forklaringsOutput] = ElektroMatBibTrinvis.deltaFunktion_med_forklaring(t0, t, s)
+    %
+    % Input:
+    %   t0 - tidspunkt for impulsen
+    %   t - tidsvariabel (symbolsk)
+    %   s - Laplace-variabel (symbolsk)
+    % 
+    % Output:
+    %   F - Laplacetransformationen af delta(t-t0)
+    %   forklaringsOutput - Struktur med forklaringstrin
+    
+    % Starter forklaring
+    forklaringsOutput = ElektroMatBibTrinvis.startForklaring('Diracs Delta-funktion');
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 1, ...
+        'Definér delta-funktionen', ...
+        'Diracs delta-funktion er en generaliseret funktion, der repræsenterer en uendelig smal og høj impuls.', ...
+        ['δ(t-' char(t0) ') = { ∞ for t = ' char(t0) ', 0 for t ≠ ' char(t0) ' }']);
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 2, ...
+        'Egenskaber for delta-funktionen', ...
+        ['Følgende egenskaber gælder for delta-funktionen:\n' ...
+         '1. ∫ δ(t-' char(t0) ') dt = 1 (areal = 1)\n' ...
+         '2. ∫ f(t)·δ(t-' char(t0) ') dt = f(' char(t0) ') (sampling-egenskab)\n' ...
+         '3. δ(t) = d/dt[u(t)] (differentialet af enhedstrinfunktionen)'], ...
+        '');
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 3, ...
+        'Anvend definitionen for Laplacetransformationen', ...
+        'Vi anvender definitionen af Laplacetransformationen på delta-funktionen.', ...
+        ['L{δ(t-' char(t0) ')} = ∫ δ(t-' char(t0) ')·e^(-st) dt fra 0- til ∞']);
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 4, ...
+        'Udnyt sampling-egenskaben', ...
+        ['Ved at bruge sampling-egenskaben med f(t) = e^(-st), får vi:'], ...
+        ['∫ δ(t-' char(t0) ')·e^(-st) dt = e^(-s·' char(t0) ')']);
+    
+    % Resultat afhænger af t0
+    if t0 < 0
+        F = 0;
+        forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 5, ...
+            'Vurdér intervallet', ...
+            ['Da ' char(t0) ' < 0, ligger delta-impulsen uden for integrationsområdet [0,∞).'], ...
+            ['L{δ(t-' char(t0) ')} = 0 for ' char(t0) ' < 0']);
+    else
+        F = exp(-s*t0);
+        forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 5, ...
+            'Beregn transformationen', ...
+            ['Da ' char(t0) ' ≥ 0, har vi:'], ...
+            ['L{δ(t-' char(t0) ')} = e^(-s·' char(t0) ')']);
+    end
+    
+    % Specielt tilfælde hvis t0 = 0
+    if t0 == 0
+        forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 6, ...
+            'Specielt tilfælde for t0 = 0', ...
+            'For t0 = 0 har vi delta-funktionen centreret i 0.', ...
+            'L{δ(t)} = 1');
+    end
+    
+    % Afslut
+    forklaringsOutput = ElektroMatBibTrinvis.afslutForklaring(forklaringsOutput, ...
+        ['L{δ(t-' char(t0) ')} = ' char(F)]);
+end
+
+function [F, forklaringsOutput] = enhedsTrin_med_forklaring(t0, t, s)
+    % ENHEDSTRIN_MED_FORKLARING Forklarer enhedstrinfunktionen og dens Laplacetransformation
+    %
+    % Syntax:
+    %   [F, forklaringsOutput] = ElektroMatBibTrinvis.enhedsTrin_med_forklaring(t0, t, s)
+    %
+    % Input:
+    %   t0 - forskydning af enhedstrinfunktionen
+    %   t - tidsvariabel (symbolsk)
+    %   s - Laplace-variabel (symbolsk)
+    % 
+    % Output:
+    %   F - Laplacetransformationen af u(t-t0)
+    %   forklaringsOutput - Struktur med forklaringstrin
+    
+    % Starter forklaring
+    forklaringsOutput = ElektroMatBibTrinvis.startForklaring('Enhedstrinfunktionen');
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 1, ...
+        'Definér enhedstrinfunktionen', ...
+        'Enhedstrinfunktionen u(t) repræsenterer et spring fra 0 til 1 ved tiden t = 0.', ...
+        ['u(t-' char(t0) ') = { 1 for t ≥ ' char(t0) ', 0 for t < ' char(t0) ' }']);
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 2, ...
+        'Egenskaber for enhedstrinfunktionen', ...
+        ['Følgende egenskaber gælder for enhedstrinfunktionen:\n' ...
+         '1. u(t) er diskontinuert ved t = 0\n' ...
+         '2. d/dt[u(t)] = δ(t) (enhedstrinfunktionen er integralet af delta-funktionen)\n' ...
+         '3. f(t)·u(t-t0) "tænder" for f(t) ved tiden t = t0'], ...
+        '');
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 3, ...
+        'Anvend definitionen for Laplacetransformationen', ...
+        'Vi anvender definitionen af Laplacetransformationen på enhedstrinfunktionen.', ...
+        ['L{u(t-' char(t0) ')} = ∫ u(t-' char(t0) ')·e^(-st) dt fra 0- til ∞']);
+    
+    % Resultat afhænger af t0
+    if t0 > 0
+        forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 4, ...
+            'Opdel integralet', ...
+            ['Da ' char(t0) ' > 0, starter springet efter t = 0:'], ...
+            ['∫ u(t-' char(t0) ')·e^(-st) dt = ∫ 0·e^(-st) dt fra 0 til ' char(t0) ' + ∫ 1·e^(-st) dt fra ' char(t0) ' til ∞']);
+        
+        forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 5, ...
+            'Beregn integralet', ...
+            ['Vi løser integralet:'], ...
+            ['∫ e^(-st) dt fra ' char(t0) ' til ∞ = [-e^(-st)/s]_' char(t0) '^∞ = 0 - (-e^(-s·' char(t0) ')/s) = e^(-s·' char(t0) ')/s']);
+        
+        F = exp(-s*t0)/s;
+    elseif t0 == 0
+        forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 4, ...
+            'Simpelt tilfælde for t0 = 0', ...
+            'For t0 = 0 har vi den klassiske enhedstrinfunktion u(t).', ...
+            ['∫ u(t)·e^(-st) dt = ∫ 1·e^(-st) dt fra 0 til ∞ = [-e^(-st)/s]_0^∞ = 0 - (-1/s) = 1/s']);
+        
+        F = 1/s;
+    else % t0 < 0
+        forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 4, ...
+            'Analysér tilfældet t0 < 0', ...
+            ['Da ' char(t0) ' < 0, starter springet før t = 0, så u(t-' char(t0) ') = 1 for hele integrationsområdet [0,∞).'], ...
+            ['∫ u(t-' char(t0) ')·e^(-st) dt = ∫ 1·e^(-st) dt fra 0 til ∞ = 1/s']);
+        
+        F = 1/s;
+    end
+    
+    % Anvend forsinkelsesreglen
+    if t0 > 0
+        forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 6, ...
+            'Brug forsinkelsesreglen', ...
+            ['Vi kan også anvende forsinkelsesreglen direkte:'], ...
+            ['L{u(t-' char(t0) ')} = L{u(t)}·e^(-s·' char(t0) ') = (1/s)·e^(-s·' char(t0) ') = e^(-s·' char(t0) ')/s']);
+    end
+    
+    % Afslut
+    forklaringsOutput = ElektroMatBibTrinvis.afslutForklaring(forklaringsOutput, ...
+        ['L{u(t-' char(t0) ')} = ' char(F)]);
+end
+
+function [F, forklaringsOutput] = forsinkelsesRegel_med_forklaring(f_expr, t0, t, s)
+    % FORSINKELSESREGEL_MED_FORKLARING Forklarer forsinkelsesreglen (Second Shift Theorem)
+    %
+    % Syntax:
+    %   [F, forklaringsOutput] = ElektroMatBibTrinvis.forsinkelsesRegel_med_forklaring(f_expr, t0, t, s)
+    %
+    % Input:
+    %   f_expr - oprindelig funktion som symbolsk udtryk
+    %   t0 - forsinkelsestid
+    %   t - tidsvariabel (symbolsk)
+    %   s - Laplace-variabel (symbolsk)
+    % 
+    % Output:
+    %   F - Laplacetransformationen af f(t-t0)u(t-t0)
+    %   forklaringsOutput - Struktur med forklaringstrin
+    
+    % Starter forklaring
+    forklaringsOutput = ElektroMatBibTrinvis.startForklaring('Forsinkelsesreglen for Laplacetransformation');
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 1, ...
+        'Definér den oprindelige funktion', ...
+        'Vi starter med den oprindelige funktion f(t).', ...
+        ['f(t) = ' char(f_expr)]);
+    
+    % Beregn Laplacetransformationen af den oprindelige funktion
+    F_orig = ElektroMatBib.laplace(f_expr, t, s);
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 2, ...
+        'Find Laplacetransformationen af f(t)', ...
+        'Vi beregner først Laplacetransformationen af den oprindelige funktion.', ...
+        ['L{f(t)} = ' char(F_orig)]);
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 3, ...
+        'Definér den forsinkede funktion', ...
+        ['Vi ønsker at finde Laplacetransformationen af den forsinkede funktion f(t-' char(t0) ')u(t-' char(t0) ').'], ...
+        ['Dette repræsenterer f(t) forskudt ' char(t0) ' tidenheder og "tændt" ved t = ' char(t0) '.']);
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 4, ...
+        'Forklar forsinkelsesreglen', ...
+        'Forsinkelsesreglen (Second Shift Theorem) siger:', ...
+        ['L{f(t-' char(t0) ')u(t-' char(t0) ')} = e^(-s·' char(t0) ') · L{f(t)}    for ' char(t0) ' > 0']);
+    
+    % Anvend forsinkelsesreglen
+    F = exp(-s*t0) * F_orig;
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 5, ...
+        'Anvend forsinkelsesreglen', ...
+        ['Vi anvender formlen direkte:'], ...
+        ['L{f(t-' char(t0) ')u(t-' char(t0) ')} = e^(-s·' char(t0) ') · ' char(F_orig) ' = ' char(F)]);
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 6, ...
+        'Fortolk resultatet', ...
+        ['Forsinkelsesreglen viser, at en forsinkelse i tidsdomænet svarer til multiplikation med e^(-s·t0) i s-domænet.'], ...
+        ['Dette er særligt nyttigt ved løsning af differentialligninger med forsinkede inputsignaler.']);
+    
+    % Afslut
+    forklaringsOutput = ElektroMatBibTrinvis.afslutForklaring(forklaringsOutput, ...
+        ['L{f(t-' char(t0) ')u(t-' char(t0) ')} = ' char(F)]);
+end
+
+%% FOURIERRÆKKE FUNKTIONER %%
+
+function [cn, forklaringsOutput] = fourierKoefficienter_med_forklaring(f, t, T)
+    % FOURIERKOEFFICIENTER_MED_FORKLARING Beregner Fourierkoefficienter med trinvis forklaring
+    %
+    % Syntax:
+    %   [cn, forklaringsOutput] = ElektroMatBibTrinvis.fourierKoefficienter_med_forklaring(f, t, T)
+    %
+    % Input:
+    %   f - periodisk funktion som symbolsk udtryk
+    %   t - tidsvariabel (symbolsk)
+    %   T - periode
+    % 
+    % Output:
+    %   cn - struktur med Fourierkoefficienter
+    %   forklaringsOutput - Struktur med forklaringstrin
+    
+    % Starter forklaring
+    forklaringsOutput = ElektroMatBibTrinvis.startForklaring('Beregning af Fourierkoefficienter');
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 1, ...
+        'Identificer den periodiske funktion', ...
+        ['Vi starter med den periodiske funktion f(t) med periode T = ' char(T) '.'], ...
+        ['f(t) = ' char(f)]);
+    
+    % Beregn grundfrekvensen
+    omega = 2*pi/T;
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 2, ...
+        'Definér grundfrekvensen', ...
+        ['Grundfrekvensen beregnes som ω₀ = 2π/T.'], ...
+        ['ω₀ = 2π/' char(T) ' = ' char(omega) ' rad/s']);
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 3, ...
+        'Definér formlen for Fourierkoefficienter', ...
+        ['Fourierkoefficienten cₙ er defineret som:'], ...
+        ['cₙ = (1/T) · ∫ f(t) · e^(-jnω₀t) dt fra -T/2 til T/2']);
+    
+    % Beregn koefficienter
+    syms n;
+    cn_expr = (1/T) * int(f * exp(-1i*n*omega*t), t, -T/2, T/2);
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 4, ...
+        'Opsæt integralet', ...
+        ['Vi indsætter funktionen i formlen:'], ...
+        ['cₙ = (1/' char(T) ') · ∫ ' char(f) ' · e^(-jn·' char(omega) '·t) dt fra -' char(T/2) ' til ' char(T/2)]);
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 5, ...
+        'Løs integralet symbolsk', ...
+        ['Vi integrerer udtrykket med hensyn til t:'], ...
+        ['cₙ = ' char(cn_expr)]);
+    
+    % Beregn specifikke koefficienter
+    max_n = 5;
+    c_values = struct();
+    c_values.c0 = double(subs(cn_expr, n, 0));
+    
+    coef_text = ['c₀ = ' num2str(c_values.c0, '%.6f')];
+    
+    for k = 1:max_n
+        c_values.(sprintf('c%d', k)) = double(subs(cn_expr, n, k));
+        c_values.(sprintf('cm%d', k)) = double(subs(cn_expr, n, -k));
+        
+        coef_text = [coef_text '\nc₋' num2str(k) ' = ' num2str(c_values.(sprintf('cm%d', k)), '%.6f')];
+        coef_text = [coef_text '\nc' num2str(k) ' = ' num2str(c_values.(sprintf('c%d', k)), '%.6f')];
+    end
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 6, ...
+        'Beregn specifikke koefficienter', ...
+        ['Vi beregner koefficienterne c₀, c₁, c₋₁, ..., c' num2str(max_n) ', c₋' num2str(max_n) ':'], ...
+        coef_text);
+    
+    % Symmetriegenskaber
+    if isreal(f)
+        forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 7, ...
+            'Undersøg symmetriegenskaber', ...
+            ['Da f(t) er en reel funktion, gælder: c₋ₙ = cₙ*'], ...
+            ['Hvor * angiver den komplekst konjugerede.']);
+        
+        % Tjek for lige/ulige symmetri
+        try
+            f_even = subs(f, t, -t);
+            if isequal(f_even, f)
+                forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 8, ...
+                    'Identificer lige symmetri', ...
+                    ['Funktionen har lige symmetri: f(-t) = f(t)'], ...
+                    ['Dette giver reelle Fourierkoefficienter.']);
+            elseif isequal(f_even, -f)
+                forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 8, ...
+                    'Identificer ulige symmetri', ...
+                    ['Funktionen har ulige symmetri: f(-t) = -f(t)'], ...
+                    ['Dette giver rent imaginære Fourierkoefficienter.']);
+            end
+        catch
+            % Kunne ikke undersøge symbolsk
+        end
+    end
+    
+    % Returnér koefficienter
+    cn = c_values;
+    
+    % Afslut
+    forklaringsOutput = ElektroMatBibTrinvis.afslutForklaring(forklaringsOutput, ...
+        'Fourierkoefficienter er beregnet.');
+    
+    % Visualiser amplitudespektrum
+    figure;
+    
+    % Ekstrahér koefficienter til plot
+    n_values = -max_n:max_n;
+    c_plot = zeros(size(n_values));
+    
+    for i = 1:length(n_values)
+        if n_values(i) == 0
+            c_plot(i) = abs(c_values.c0);
+        elseif n_values(i) > 0
+            c_plot(i) = abs(c_values.(sprintf('c%d', n_values(i))));
+        else
+            c_plot(i) = abs(c_values.(sprintf('cm%d', abs(n_values(i)))));
+        end
+    end
+    
+    % Plot amplitudespektrum
+    stem(n_values, c_plot, 'filled', 'LineWidth', 2);
+    grid on;
+    title('Amplitudespektrum |cₙ|');
+    xlabel('n');
+    ylabel('|cₙ|');
+end
+
+function [f_approx, forklaringsOutput] = fourierRaekke_med_forklaring(cn, t, T, N)
+    % FOURIERRAEKKE_MED_FORKLARING Beregner Fourierrækkeapproksimation med trinvis forklaring
+    %
+    % Syntax:
+    %   [f_approx, forklaringsOutput] = ElektroMatBibTrinvis.fourierRaekke_med_forklaring(cn, t, T, N)
+    %
+    % Input:
+    %   cn - struktur med Fourierkoefficienter
+    %   t - tidsvariabel (symbolsk)
+    %   T - periode
+    %   N - antal led i Fourierrækken
+    % 
+    % Output:
+    %   f_approx - approksimation af den periodiske funktion
+    %   forklaringsOutput - Struktur med forklaringstrin
+    
+    % Starter forklaring
+    forklaringsOutput = ElektroMatBibTrinvis.startForklaring('Fourierrækkeapproksimation');
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 1, ...
+        'Definér Fourierrækken', ...
+        ['Fourierrækken for en periodisk funktion med periode T er givet ved:'], ...
+        ['f(t) = ∑ cₙ·e^(jnω₀t) fra n = -∞ til ∞, hvor ω₀ = 2π/T']);
+    
+    % Beregn grundfrekvensen
+    omega = 2*pi/T;
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 2, ...
+        'Beregn grundfrekvensen', ...
+        ['Grundfrekvensen er ω₀ = 2π/T.'], ...
+        ['ω₀ = 2π/' char(T) ' = ' char(omega) ' rad/s']);
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 3, ...
+        'Begræns antallet af led', ...
+        ['Vi approksimerer Fourierrækken med et begrænset antal led:'], ...
+        ['f(t) ≈ ∑ cₙ·e^(jnω₀t) fra n = -' num2str(N) ' til ' num2str(N)]);
+    
+    % Opbyg rækkens udtryk
+    f_approx_sym = 0;
+    
+    % Tilføj c₀-leddet
+    if isfield(cn, 'c0')
+        f_approx_sym = f_approx_sym + cn.c0;
+    end
+    
+    % Tilføj de positive n-led
+    for k = 1:N
+        field_name = sprintf('c%d', k);
+        if isfield(cn, field_name)
+            f_approx_sym = f_approx_sym + cn.(field_name) * exp(1i*k*omega*t);
+        end
+    end
+    
+    % Tilføj de negative n-led
+    for k = 1:N
+        field_name = sprintf('cm%d', k);
+        if isfield(cn, field_name)
+            f_approx_sym = f_approx_sym + cn.(field_name) * exp(-1i*k*omega*t);
+        end
+    end
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 4, ...
+        'Opbyg Fourierrækkeudtrykket', ...
+        ['Vi indsætter de beregnede koefficienter:'], ...
+        ['f(t) ≈ ' char(f_approx_sym)]);
+    
+    % Forenkl til reel form (cos/sin)
+    try
+        f_approx_real = simplify(f_approx_sym, 'IgnoreAnalyticConstraints', true);
+        
+        forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 5, ...
+            'Omskriv til cosinus/sinus-form', ...
+            ['Vi kan omskrive udtrykt til reelle cosinus- og sinusfunktioner:'], ...
+            ['f(t) ≈ ' char(f_approx_real)]);
+    catch
+        % Kunne ikke forenkle symbolsk
+        forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 5, ...
+            'Fourierrækken i eksponentiel form', ...
+            ['Fourierrækken er udtrykt i eksponentiel form.'], ...
+            ['']);
+    end
+    
+    % Beregn effekten af signalet
+    c0_squared = 0;
+    if isfield(cn, 'c0')
+        c0_squared = abs(cn.c0)^2;
+    end
+    
+    power_sum = c0_squared;
+    for k = 1:N
+        if isfield(cn, sprintf('c%d', k))
+            power_sum = power_sum + abs(cn.(sprintf('c%d', k)))^2;
+        end
+        if isfield(cn, sprintf('cm%d', k))
+            power_sum = power_sum + abs(cn.(sprintf('cm%d', k)))^2;
+        end
+    end
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 6, ...
+        'Beregn effekten af approksimationen', ...
+        ['Signaleffekten kan beregnes ved hjælp af Parsevals teorem:'], ...
+        ['P = |c₀|² + ∑ |cₙ|² fra n = -∞ til ∞, n ≠ 0']);
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 7, ...
+        'Estimér signalets effekt', ...
+        ['Den estimerede effekt med ' num2str(2*N+1) ' led er:'], ...
+        ['P ≈ ' num2str(power_sum)]);
+    
+    % Resultat
+    f_approx = f_approx_sym;
+    
+    % Afslut
+    forklaringsOutput = ElektroMatBibTrinvis.afslutForklaring(forklaringsOutput, ...
+        ['Fourierrækkeapproksimationen er beregnet med ' num2str(2*N+1) ' led.']);
+    
+    % Plot approksimationen
+    figure;
+    
+    % Generer t-værdier for 3 perioder
+    t_values = linspace(-1.5*T, 1.5*T, 1000);
+    
+    % Evaluer funktionen
+    f_values = zeros(size(t_values));
+    for i = 1:length(t_values)
+        f_values(i) = double(subs(f_approx, t, t_values(i)));
+    end
+    
+    % Plot
+    plot(t_values, real(f_values), 'LineWidth', 2);
+    grid on;
+    title(['Fourierrækkeapproksimation (N = ' num2str(N) ')']);
+    xlabel('t');
+    ylabel('f(t)');
+    
+    % Markér periodeintervallet
+    xline(-T/2, '--', 'T/2');
+    xline(T/2, '--', 'T/2');
+    
+    % Markér middelværdien
+    if isfield(cn, 'c0')
+        yline(real(cn.c0), '-.', 'c₀');
+    end
+end
+
+function [P, forklaringsOutput] = parsevalTeorem_med_forklaring(cn, N)
+    % PARSEVALTEOREM_MED_FORKLARING Forklarer Parsevals teorem og beregner signalets effekt
+    %
+    % Syntax:
+    %   [P, forklaringsOutput] = ElektroMatBibTrinvis.parsevalTeorem_med_forklaring(cn, N)
+    %
+    % Input:
+    %   cn - struktur med Fourierkoefficienter
+    %   N - maksimalt indekstal for koefficienterne
+    % 
+    % Output:
+    %   P - signalets middeleffekt
+    %   forklaringsOutput - Struktur med forklaringstrin
+    
+    % Starter forklaring
+    forklaringsOutput = ElektroMatBibTrinvis.startForklaring('Parsevals Teorem');
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 1, ...
+        'Definér Parsevals teorem', ...
+        ['Parsevals teorem forbinder effekten beregnet i tidsdomænet med Fourierkoefficienterne:'], ...
+        ['(1/T) · ∫ |f(t)|² dt = |c₀|² + ∑ |cₙ|² fra n = -∞ til ∞, n ≠ 0']);
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 2, ...
+        'Fortolk Parsevals teorem', ...
+        ['Teoremet viser, at middeleffekten af et periodisk signal kan beregnes ved at summere kvadraterne af amplituderne af alle frekvenskomponenter.'], ...
+        ['Dette gør det muligt at analysere signalets effektfordeling over forskellige frekvenser.']);
+    
+    % Beregn effekten
+    c0_squared = 0;
+    if isfield(cn, 'c0')
+        c0_squared = abs(cn.c0)^2;
+    end
+    
+    power_text = ['|c₀|² = ' num2str(c0_squared)];
+    power_sum = c0_squared;
+    
+    for k = 1:N
+        pos_term = 0;
+        neg_term = 0;
+        
+        if isfield(cn, sprintf('c%d', k))
+            pos_term = abs(cn.(sprintf('c%d', k)))^2;
+            power_sum = power_sum + pos_term;
+        end
+        
+        if isfield(cn, sprintf('cm%d', k))
+            neg_term = abs(cn.(sprintf('cm%d', k)))^2;
+            power_sum = power_sum + neg_term;
+        end
+        
+        power_text = [power_text '\n|c₋' num2str(k) '|² + |c' num2str(k) '|² = ' num2str(neg_term) ' + ' num2str(pos_term) ' = ' num2str(neg_term + pos_term)];
+    end
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 3, ...
+        'Beregn effektbidrag fra hver frekvenskomponent', ...
+        ['Vi beregner effektbidraget fra hver enkelt frekvenskomponent:'], ...
+        power_text);
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 4, ...
+        'Summér effekter', ...
+        ['Den samlede middeleffekt er summen af alle effektbidrag:'], ...
+        ['P = ' num2str(power_sum)]);
+    
+    % Beregn relativ effektfordeling
+    if power_sum > 0
+        forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 5, ...
+            'Beregn relativ effektfordeling', ...
+            ['Vi kan også beregne, hvor meget hver frekvenskomponent bidrager til den samlede effekt:'], ...
+            ['DC-komponent (c₀): ' num2str(100*c0_squared/power_sum, '%.2f') '%']);
+    end
+    
+    % Resultat
+    P = power_sum;
+    
+    % Afslut
+    forklaringsOutput = ElektroMatBibTrinvis.afslutForklaring(forklaringsOutput, ...
+        ['Middeleffekten er ' num2str(P)]);
+    
+    % Visualiser effektspektrum
+    figure;
+    
+    % Forbered data til plot
+    n_values = -N:N;
+    power_values = zeros(size(n_values));
+    
+    for i = 1:length(n_values)
+        if n_values(i) == 0 && isfield(cn, 'c0')
+            power_values(i) = abs(cn.c0)^2;
+        elseif n_values(i) > 0 && isfield(cn, sprintf('c%d', n_values(i)))
+            power_values(i) = abs(cn.(sprintf('c%d', n_values(i))))^2;
+        elseif n_values(i) < 0 && isfield(cn, sprintf('cm%d', abs(n_values(i))))
+            power_values(i) = abs(cn.(sprintf('cm%d', abs(n_values(i)))))^2;
+        end
+    end
+    
+    % Plot effektspektrum
+    stem(n_values, power_values, 'filled', 'LineWidth', 2);
+    grid on;
+    title('Effektspektrum |cₙ|²');
+    xlabel('n');
+    ylabel('|cₙ|²');
+end
+
+%% ENERGI- OG EFFEKTTÆTHEDSFUNKTIONER %%
+
+function [E, forklaringsOutput] = energiTaethed_med_forklaring(F, omega)
+    % ENERGITAETHED_MED_FORKLARING Beregner og forklarer energitæthedsspektrum
+    %
+    % Syntax:
+    %   [E, forklaringsOutput] = ElektroMatBibTrinvis.energiTaethed_med_forklaring(F, omega)
+    %
+    % Input:
+    %   F - Fouriertransformeret signal som symbolsk udtryk eller numerisk vektor
+    %   omega - frekvensvariabel eller frekvensvektor for numerisk beregning
+    % 
+    % Output:
+    %   E - energitæthedsspektrum
+    %   forklaringsOutput - Struktur med forklaringstrin
+    
+    % Starter forklaring
+    forklaringsOutput = ElektroMatBibTrinvis.startForklaring('Energitæthedsspektrum');
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 1, ...
+        'Definér energitæthedsspektrum', ...
+        ['Energitæthedsspektret for et signal med Fouriertransformationen F(ω) er defineret som:'], ...
+        ['Φ_e(ω) = |F(ω)|²/π for ω ≥ 0']);
+    
+    if isnumeric(F) && isnumeric(omega)
+        % Numerisk beregning
+        forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 2, ...
+            'Numerisk beregning', ...
+            ['Vi har Fouriertransformationen givet numerisk.'], ...
+            ['Beregner |F(ω)|² for alle frekvenser ω.']);
+        
+        % Beregn energitæthed
+        E = abs(F).^2 / pi;
+        
+        % Total energi (numerisk integration)
+        domega = mean(diff(omega));
+        E_total = sum(E) * domega;
+        
+        forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 3, ...
+            'Beregn total energi', ...
+            ['Den totale energi i signalet kan beregnes ved at integrere energitæthedsspektret:'], ...
+            ['E = ∫ Φ_e(ω) dω ≈ ' num2str(E_total)]);
+    else
+        % Symbolsk beregning
+        forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 2, ...
+            'Symbolsk beregning', ...
+            ['Vi har Fouriertransformationen F(ω) = ' char(F)], ...
+            ['Beregner |F(ω)|² symbolsk.']);
+        
+        % Beregn energitæthed
+        E_sym = simplify(F * conj(F) / pi);
+        
+        forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 3, ...
+            'Energitæthedsspektrum', ...
+            ['Energitæthedsspektret er:'], ...
+            ['Φ_e(ω) = ' char(E_sym)]);
+        
+        % Forsøg at beregne total energi
+        try
+            E_total = int(E_sym, omega, 0, inf);
+            
+            forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 4, ...
+                'Beregn total energi', ...
+                ['Den totale energi i signalet kan beregnes ved at integrere energitæthedsspektret:'], ...
+                ['E = ∫ Φ_e(ω) dω = ' char(E_total)]);
+        catch
+            forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 4, ...
+                'Total energi', ...
+                ['Den totale energi beregnes ved at integrere energitæthedsspektret:'], ...
+                ['E = ∫ Φ_e(ω) dω fra 0 til ∞']);
+        end
+        
+        E = E_sym;
+    end
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 5, ...
+        'Fortolk energitæthedsspektrum', ...
+        ['Energitæthedsspektret viser, hvordan signalets energi er fordelt over forskellige frekvenser.'], ...
+        ['Høje værdier ved bestemte frekvenser indikerer, at signalet har betydelige komponenter ved disse frekvenser.']);
+    
+    % Afslut
+    forklaringsOutput = ElektroMatBibTrinvis.afslutForklaring(forklaringsOutput, ...
+        'Energitæthedsspektrum er beregnet.');
+    
+    % Visualiser hvis data er numerisk
+    if isnumeric(F) && isnumeric(omega)
+        figure;
+        plot(omega, E, 'LineWidth', 2);
+        grid on;
+        title('Energitæthedsspektrum Φ_e(ω)');
+        xlabel('Frekvens ω (rad/s)');
+        ylabel('Φ_e(ω)');
+    end
+end
+
+function [P, forklaringsOutput] = effektTaethed_med_forklaring(F, omega)
+    % EFFEKTTAETHED_MED_FORKLARING Beregner og forklarer effekttæthedsspektrum
+    %
+    % Syntax:
+    %   [P, forklaringsOutput] = ElektroMatBibTrinvis.effektTaethed_med_forklaring(F, omega)
+    %
+    % Input:
+    %   F - Fouriertransformeret periodisk signal eller amplitudevektor af Fourierkoefficienter
+    %   omega - frekvensvariabel eller frekvensvektor for numerisk beregning
+    % 
+    % Output:
+    %   P - effekttæthedsspektrum
+    %   forklaringsOutput - Struktur med forklaringstrin
+    
+    % Starter forklaring
+    forklaringsOutput = ElektroMatBibTrinvis.startForklaring('Effekttæthedsspektrum');
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 1, ...
+        'Definér effekttæthedsspektrum', ...
+        ['Effekttæthedsspektret for et periodisk signal kan defineres på to måder:'], ...
+        ['1. Ved hjælp af Fourierkoefficienter: Φ_p(ω) = ∑ |cₙ|² · δ(ω - nω₀)\n' ...
+         '2. Ved hjælp af grænsen af energitæthedsspektret: Φ_p(ω) = lim(T→∞) (1/T) · |F_T(ω)|²/π']);
+    
+    if isnumeric(F) && isnumeric(omega)
+        % Numerisk beregning
+        forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 2, ...
+            'Numerisk beregning', ...
+            ['Vi har amplituder for Fourierkoefficienter givet numerisk.'], ...
+            ['Beregner |cₙ|² for alle harmoniske.']);
+        
+        % Antag at F indeholder amplituder af Fourierkoefficienter
+        P = abs(F).^2;
+        
+        % Total effekt
+        P_total = sum(P);
+        
+        forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 3, ...
+            'Beregn total effekt', ...
+            ['Den totale effekt i signalet er summen af effektbidragene fra alle harmoniske:'], ...
+            ['P = ∑ |cₙ|² = ' num2str(P_total)]);
+    else
+        % Symbolsk tilgang
+        forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 2, ...
+            'Teoretisk tilgang', ...
+            ['For et periodisk signal har effekttæthedsspektret diskrete værdier ved harmoniske frekvenser.'], ...
+            ['Spektret består af Dirac-impulser ved frekvenserne nω₀.']);
+        
+        forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 3, ...
+            'Fourierkoefficienters relation til effekt', ...
+            ['Effekten i den n-te harmoniske er givet ved |cₙ|².'], ...
+            ['Den totale effekt i signalet er summen P = |c₀|² + 2·∑ |cₙ|² for n > 0']);
+        
+        % Vi kan ikke beregne symbolsk uden mere information
+        P = sym('P_effekt');
+    end
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 4, ...
+        'Fortolk effekttæthedsspektrum', ...
+        ['Effekttæthedsspektret viser, hvordan signalets middeleffekt er fordelt over forskellige frekvenser.'], ...
+        ['For periodiske signaler er effekten koncentreret ved de harmoniske frekvenser nω₀.']);
+    
+    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 5, ...
+        'Forskel mellem energi- og effekttæthedsspektrum', ...
+        ['Energispektret bruges til signaler med endelig energi, mens effektspektret bruges til periodiske signaler.'], ...
+        ['Et periodisk signal har uendelig energi, men endelig middeleffekt.']);
+    
+    % Afslut
+    forklaringsOutput = ElektroMatBibTrinvis.afslutForklaring(forklaringsOutput, ...
+        'Effekttæthedsspektrum er beregnet.');
+    
+    % Visualiser hvis data er numerisk
+    if isnumeric(F) && isnumeric(omega)
+        figure;
+        stem(omega, P, 'filled', 'LineWidth', 2);
+        grid on;
+        title('Effekttæthedsspektrum');
+        xlabel('Frekvens (rad/s)');
+        ylabel('|cₙ|²');
+    end
+end
+
     end
 end
