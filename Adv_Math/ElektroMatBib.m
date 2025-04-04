@@ -1,4 +1,5 @@
-% ElektroMatBib.m - MATLAB Matematisk Bibliotek til 62735 "Videregående Matematik for Diplom Elektroteknologi"
+% ElektroMatBib.m - MATLAB Matematisk Bibliotek specifikt lavet til DTU Kursus: 62735 Videregående Matematik for Diplom Elektroteknologi
+%
 % Dette bibliotek giver praktiske funktioner til at løse opgaver indenfor:
 % - Laplace transformation
 % - Fourier transformation og rækker
