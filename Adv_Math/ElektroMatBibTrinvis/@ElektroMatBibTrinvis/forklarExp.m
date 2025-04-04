@@ -1,0 +1,13 @@
+
+        
+        function [F, forklaringsOutput] = forklarExp(f, t, s, params, forklaringsOutput)
+            % Forklaring for eksponentialfunktion
+            a = params.a;
+            
+            forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 2, ...
+                'Identificer funktionstypen som en eksponentialfunktion', ...
+                'Funktionen er på formen e^(at) for en konstant a.', ...
+                ['f(t) = e^(' char(a) 't)']);
+            
+            forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 3, ...
+                'Anvend
