@@ -3,6 +3,9 @@
 % øvelsesopgaver fra uge 1 i 62735 Videregående Matematik for Diplom Elektroteknologi
 
 %% Initalisering
+% Call the setup function to ensure paths are correct
+[F1, forklaring1] = MathTools.enhedsTrin_med_forklaring(0, t, s);
+
 % Symbolske variable
 syms t s a b;
 disp('62735 Videregående Matematik for Diplom Elektroteknologi');
