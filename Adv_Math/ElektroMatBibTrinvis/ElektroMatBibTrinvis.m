@@ -2,8 +2,8 @@
 % Dette bibliotek er en udvidelse af ElektroMatBib og tilføjer detaljerede
 % trinvise forklaringer til matematiske operationer.
 %
-% Forfatter: Udvidelse af Frederik Tots' bibliotek
-% Version: 1.0
+% Udvikler: Frederik Tots
+% Version: 2.0
 % Dato: 4/4/2025
 
 classdef ElektroMatBibTrinvis
@@ -32,6 +32,44 @@ classdef ElektroMatBibTrinvis
         
         function [f, forklaringsOutput] = inversLaplace_med_forklaring(F, s, t)
             [f, forklaringsOutput] = ElektroMat.InversLaplace.inversLaplace_med_forklaring(F, s, t);
+        end
+        
+        %% NYE LAPLACE FUNKTIONER (UDVIDELSE) %%
+        function [y, forklaringsOutput] = beregnUdgangssignal_med_forklaring(H_s, X_s, s, t)
+            [y, forklaringsOutput] = ElektroMat.LTI_Systemer.beregnUdgangssignal_med_forklaring(H_s, X_s, s, t);
+        end
+        
+        function [G, forklaringsOutput] = diffLaplace_med_forklaring(F_s, s, n)
+            [G, forklaringsOutput] = ElektroMat.Laplace.diffLaplace_med_forklaring(F_s, s, n);
+        end
+        
+        %% FOURIER TRANSFORMATIONER MED TRINVISE FORKLARINGER (NYE) %%
+        function [F, forklaringsOutput] = fourier_med_forklaring(f, t, omega)
+            [F, forklaringsOutput] = ElektroMat.Fourier.fourier_med_forklaring(f, t, omega);
+        end
+        
+        function [F_d, forklaringsOutput] = fourierAfledt_med_forklaring(f, t, omega, n)
+            [F_d, forklaringsOutput] = ElektroMat.Fourier.fourierAfledt_med_forklaring(f, t, omega, n);
+        end
+        
+        function [F_t, forklaringsOutput] = fourierTidMultiplikation_med_forklaring(f, t, omega, n, kompleks)
+            if nargin < 5
+                [F_t, forklaringsOutput] = ElektroMat.Fourier.fourierTidMultiplikation_med_forklaring(f, t, omega, n);
+            else
+                [F_t, forklaringsOutput] = ElektroMat.Fourier.fourierTidMultiplikation_med_forklaring(f, t, omega, n, kompleks);
+            end
+        end
+        
+        function [F_scaled, forklaringsOutput] = fourierSkalering_med_forklaring(f, t, omega, a, b)
+            [F_scaled, forklaringsOutput] = ElektroMat.Fourier.fourierSkalering_med_forklaring(f, t, omega, a, b);
+        end
+        
+        function [F_int, forklaringsOutput] = fourierIntegral_med_forklaring(f, t, omega)
+            [F_int, forklaringsOutput] = ElektroMat.Fourier.fourierIntegral_med_forklaring(f, t, omega);
+        end
+        
+        function [F_inv, forklaringsOutput] = fourierAfFourier_med_forklaring(f, t, omega)
+            [F_inv, forklaringsOutput] = ElektroMat.Fourier.fourierAfFourier_med_forklaring(f, t, omega);
         end
         
         %% FUNKTIONSANALYSEFUNKTIONER %%
