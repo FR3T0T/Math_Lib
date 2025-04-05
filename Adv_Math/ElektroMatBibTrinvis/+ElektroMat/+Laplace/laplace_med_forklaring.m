@@ -43,14 +43,14 @@ function [F, forklaringsOutput] = laplace_med_forklaring(f, t, s)
             [F, forklaringsOutput] = ElektroMatBibTrinvis.forklarExpCos(f, t, s, params, forklaringsOutput);
         otherwise
             % For alle andre tilfælde - beregn og brug generel forklaring
-            F = ElektroMatBib.laplace(f, t, s);
+            F = laplace(f, t, s); % Brug MATLABs indbyggede funktion direkte
             forklaringsOutput = ElektroMatBibTrinvis.forklarGenerel(f, t, s, forklaringsOutput);
             forklaringsOutput = ElektroMatBibTrinvis.afslutForklaring(forklaringsOutput, ['F(s) = ' char(F)]);
             return;
     end
     
     % Beregn og vis det endelige resultat
-    F_check = ElektroMatBib.laplace(f, t, s);
+    F_check = laplace(f, t, s);
     F_simple = simplify(F_check);
     
     % Verificer resultatet

@@ -39,14 +39,14 @@ function [f, forklaringsOutput] = inversLaplace_med_forklaring(F, s, t)
             [f, forklaringsOutput] = ElektroMatBibTrinvis.forklarInversPartielBrok(F, s, t, params, forklaringsOutput);
         otherwise
             % For alle andre tilfælde - beregn og brug generel forklaring
-            f = ElektroMatBib.inversLaplace(F, s, t);
+            f = ilaplace(F, s, t); % Brug MATLABs indbyggede funktion direkte
             forklaringsOutput = ElektroMatBibTrinvis.forklarInversGenerel(F, s, t, forklaringsOutput);
             forklaringsOutput = ElektroMatBibTrinvis.afslutForklaring(forklaringsOutput, ['f(t) = ' char(f)]);
             return;
     end
     
     % Beregn og vis det endelige resultat
-    f_check = ElektroMatBib.inversLaplace(F, s, t);
+    f_check = ilaplace(F, s, t);
     f_simple = simplify(f_check);
     
     % Verificer resultatet

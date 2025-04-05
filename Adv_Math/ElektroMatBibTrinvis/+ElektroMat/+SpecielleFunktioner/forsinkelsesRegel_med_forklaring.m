@@ -23,7 +23,7 @@ function [F, forklaringsOutput] = forsinkelsesRegel_med_forklaring(f_expr, t0, t
         ['f(t) = ' char(f_expr)]);
     
     % Beregn Laplacetransformationen af den oprindelige funktion
-    F_orig = ElektroMatBib.laplace(f_expr, t, s);
+    F_orig = laplace(f_expr, t, s);
     
     forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 2, ...
         'Find Laplacetransformationen af f(t)', ...
