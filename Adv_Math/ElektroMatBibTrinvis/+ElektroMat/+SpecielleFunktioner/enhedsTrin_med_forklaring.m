@@ -14,7 +14,7 @@ function [F, forklaringsOutput] = enhedsTrin_med_forklaring(t0, t, s)
     %   forklaringsOutput - Struktur med forklaringstrin
     
     % Starter forklaring
-    forklaringsOutput = ElektroMatBibTrinvis.startForklaring('Enhedstrinfunktionen');
+    forklaringsOutput = ElektroMat.Forklaringssystem.startForklaring('Enhedstrinfunktionen');
     
     forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 1, ...
         'Definér enhedstrinfunktionen', ...
@@ -72,6 +72,6 @@ function [F, forklaringsOutput] = enhedsTrin_med_forklaring(t0, t, s)
     end
     
     % Afslut
-    forklaringsOutput = ElektroMatBibTrinvis.afslutForklaring(forklaringsOutput, ...
+    forklaringsOutput = ElektroMat.Forklaringssystem.afslutForklaring(forklaringsOutput, ...
         ['L{u(t-' char(t0) ')} = ' char(F)]);
 end
