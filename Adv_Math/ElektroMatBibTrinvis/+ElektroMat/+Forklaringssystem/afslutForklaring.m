@@ -8,11 +8,19 @@ function forklaringsOutput = afslutForklaring(forklaringsOutput, resultat)
     %   forklaringsOutput - Forklaringsoutput-struktur
     %   resultat - Slutresultat (tekst eller symbolsk)
     
-    if ischar(resultat)
-        forklaringsOutput.resultat = resultat;
+    if ~ischar(resultat)
+        try
+            % Brug den nye hjælpefunktion til at konvertere symbolske udtryk
+            resultat_str = symbolToString(resultat);
+        catch
+            % Fallback til standard konvertering
+            resultat_str = char(resultat);
+        end
     else
-        forklaringsOutput.resultat = char(resultat);
+        resultat_str = resultat;
     end
+    
+    forklaringsOutput.resultat = resultat_str;
     
     % Vis resultat
     disp('RESULTAT:');

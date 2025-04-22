@@ -15,6 +15,32 @@ function forklaringsOutput = tilfoejTrin(forklaringsOutput, trinNummer, trinTite
         formel = '';
     end
     
+    % Sikre at formel er en streng (håndter symbolske udtryk)
+    if ~ischar(formel) && ~isempty(formel)
+        try
+            % Brug den nye hjælpefunktion til at konvertere symbolske udtryk
+            formel = symbolToString(formel);
+        catch
+            formel = char(formel);
+        end
+        
+        % Søg efter eventuelle resterende symbolske udtryk i formlen
+        if ischar(formel)
+            patternSymbolic = '\${[a-zA-Z0-9_]+}';
+            [matches, starts] = regexp(formel, patternSymbolic, 'match', 'start');
+            for i = 1:length(matches)
+                symbolName = matches{i}(3:end-1);
+                try
+                    symbolVal = eval(['sym(' symbolName ')']);
+                    symbolStr = symbolToString(symbolVal);
+                    formel = strrep(formel, matches{i}, symbolStr);
+                catch
+                    % Ignorer fejl hvis symbolet ikke kan evalueres
+                end
+            end
+        end
+    end
+    
     % Opret trin-struktur
     nytTrin = struct('nummer', trinNummer, 'titel', trinTitel, 'tekst', trinTekst, 'formel', formel);
     forklaringsOutput.trin{end+1} = nytTrin;
