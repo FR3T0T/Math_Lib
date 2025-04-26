@@ -1,18 +1,18 @@
 function setup_paths()
-    % Remove any old paths
+    % Remove any old paths if needed
     oldPath = path;
     if contains(oldPath, 'ElektroMatBibTrinvis')
-        rmpath(genpath('C:\Users\frede\Documents\MATLAB\Math_Lib\Adv_Math\ElektroMatBibTrinvis'));
+        rmpath(genpath(fullfile(userpath, 'MATLAB Drive\Math_Lib\Adv_Math\ElektroMatBibTrinvis')));
     end
     
-    % Just add the base directory - MATLAB automatically searches package folders
-    addpath('C:\Users\frede\Documents\MATLAB\Math_Lib');
+    % Add the Math_Lib base directory
+    addpath(fullfile(userpath, 'MATLAB Drive\Math_Lib'));
     
-    % Add ElektroMatBib if it exists
-    elektromat_dir = 'C:\Users\frede\Documents\MATLAB\Math_Lib\Adv_Math\ElektroMatBib';
-    if exist(elektromat_dir, 'dir')
-        addpath(elektromat_dir);
-    end
+    % Add the ElektroMatBib library
+    addpath(fullfile(userpath, 'MATLAB Drive\Math_Lib\Adv_Math\ElektroMatBib'));
+    
+    % Add the ElektroMatBibTrinvis library and all subdirectories
+    addpath(genpath(fullfile(userpath, 'MATLAB Drive\Math_Lib\Adv_Math\ElektroMatBibTrinvis')));
     
     disp('Paths set up successfully!');
 end
