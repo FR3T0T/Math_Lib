@@ -29,14 +29,3 @@ F = simplify(F);
 % Display the result
 disp('Den samlede Laplacetransformation F(s):');
 disp(F);
-
-% Visualize f(t) for verification
-t_values = 0:0.01:3;
-f_values = heaviside(t_values) - 2*heaviside(t_values-1) + heaviside(t_values-2);
-
-figure;
-plot(t_values, f_values, 'LineWidth', 2);
-grid on;
-xlabel('t');
-ylabel('f(t)');
-title('f(t) = u(t) - 2u(t-1) + u(t-2)');
