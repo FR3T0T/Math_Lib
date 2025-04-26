@@ -9,11 +9,11 @@
 classdef ElektroMatBibTrinvis
     methods(Static)
         %% FORKLARINGSSYSTEM %%
-        function forklaringsOutput = startForklaring(titel)
+        function forklaringsOutput = ElektroMat.Forklaringssystem.startForklaring(titel)
             forklaringsOutput = ElektroMat.Forklaringssystem.startForklaring(titel);
         end
         
-        function forklaringsOutput = tilfoejTrin(forklaringsOutput, trinNummer, trinTitel, trinTekst, formel)
+        function forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, trinNummer, trinTitel, trinTekst, formel)
             if nargin < 5
                 forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, trinNummer, trinTitel, trinTekst);
             else
@@ -21,7 +21,7 @@ classdef ElektroMatBibTrinvis
             end
         end
         
-        function forklaringsOutput = afslutForklaring(forklaringsOutput, resultat)
+        function forklaringsOutput = ElektroMat.Forklaringssystem.afslutForklaring(forklaringsOutput, resultat)
             forklaringsOutput = ElektroMat.Forklaringssystem.afslutForklaring(forklaringsOutput, resultat);
         end
         
