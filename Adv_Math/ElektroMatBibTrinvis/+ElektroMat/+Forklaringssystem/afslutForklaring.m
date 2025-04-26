@@ -1,9 +1,12 @@
 % +ElektroMat/+Forklaringssystem/afslutForklaring.m
-function forklaringsOutput = ElektroMat.Forklaringssystem.afslutForklaring(forklaringsOutput, resultat)
+function forklaringsOutput = afslutForklaring(forklaringsOutput, resultat)
+    % Import forklaringssystem functions
+    import ElektroMat.Forklaringssystem.*
+
     % AFSLUTFORKLARING Afslutter en forklaring med et resultat
     %
     % Syntax:
-    %   forklaringsOutput = ElektroMatBibTrinvis.ElektroMat.Forklaringssystem.afslutForklaring(forklaringsOutput, resultat)
+    %   forklaringsOutput = ElektroMatBibTrinvis.afslutForklaring(forklaringsOutput, resultat)
     %
     % Input:
     %   forklaringsOutput - Forklaringsoutput-struktur

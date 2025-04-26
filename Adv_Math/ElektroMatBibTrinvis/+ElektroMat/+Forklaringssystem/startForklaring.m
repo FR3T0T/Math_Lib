@@ -1,9 +1,12 @@
 % +ElektroMat/+Forklaringssystem/startForklaring.m
-function forklaringsOutput = ElektroMat.Forklaringssystem.startForklaring(titel)
+function forklaringsOutput = startForklaring(titel)
+    % Import forklaringssystem functions
+    import ElektroMat.Forklaringssystem.*
+
     % STARTFORKLARING Initialiserer et nyt forklaringsoutput-objekt
     %
     % Syntax:
-    %   forklaringsOutput = ElektroMatBibTrinvis.ElektroMat.Forklaringssystem.startForklaring(titel)
+    %   forklaringsOutput = ElektroMatBibTrinvis.startForklaring(titel)
     %
     % Input:
     %   titel - Titel på forklaringen

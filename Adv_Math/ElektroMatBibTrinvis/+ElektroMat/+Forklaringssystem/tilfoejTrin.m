@@ -1,9 +1,12 @@
 % +ElektroMat/+Forklaringssystem/tilfoejTrin.m
-function forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, trinNummer, trinTitel, trinTekst, formel)
+function forklaringsOutput = tilfoejTrin(forklaringsOutput, trinNummer, trinTitel, trinTekst, formel)
+    % Import forklaringssystem functions
+    import ElektroMat.Forklaringssystem.*
+
     % TILFØJTRIN Tilføjer et forklaringstrin til forklaringsoutputtet
     %
     % Syntax:
-    %   forklaringsOutput = ElektroMatBibTrinvis.ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, trinNummer, trinTitel, trinTekst, formel)
+    %   forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, trinNummer, trinTitel, trinTekst, formel)
     %
     % Input:
     %   forklaringsOutput - Forklaringsoutput-struktur

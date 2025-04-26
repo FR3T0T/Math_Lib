@@ -1,4 +1,7 @@
 % This script will help fix function references in the ElektroMatBibTrinvis library
+    % Import forklaringssystem functions
+    import ElektroMat.Forklaringssystem.*
+
 % Run this in your library root directory
 
 function fix_function_references()
@@ -79,46 +82,46 @@ function [changes, new_content] = processFile(file_path)
     % Use separate approach for counting changes because some versions of MATLAB
     % don't support the second output from regexprep
     
-    % Pattern 1: forklaringsOutput = ElektroMat.Forklaringssystem.startForklaring
+    % Pattern 1: forklaringsOutput = startForklaring
     original = new_content;
     new_content = regexprep(new_content, ...
         '(forklaringsOutput\s*=\s*)startForklaring', ...
-        '$1ElektroMat.Forklaringssystem.startForklaring');
+        '$1startForklaring');
     count1 = countMatches(original, new_content);
     
-    % Pattern 2: forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin
+    % Pattern 2: forklaringsOutput = tilfoejTrin
     original = new_content;
     new_content = regexprep(new_content, ...
         '(forklaringsOutput\s*=\s*)tilfoejTrin', ...
-        '$1ElektroMat.Forklaringssystem.tilfoejTrin');
+        '$1tilfoejTrin');
     count2 = countMatches(original, new_content);
     
-    % Pattern 3: forklaringsOutput = ElektroMat.Forklaringssystem.afslutForklaring
+    % Pattern 3: forklaringsOutput = afslutForklaring
     original = new_content;
     new_content = regexprep(new_content, ...
         '(forklaringsOutput\s*=\s*)afslutForklaring', ...
-        '$1ElektroMat.Forklaringssystem.afslutForklaring');
+        '$1afslutForklaring');
     count3 = countMatches(original, new_content);
     
-    % Additional pattern: ElektroMatBibTrinvis.ElektroMat.Forklaringssystem.startForklaring
+    % Additional pattern: ElektroMatBibTrinvis.startForklaring
     original = new_content;
     new_content = regexprep(new_content, ...
         '(ElektroMatBibTrinvis\.)startForklaring', ...
-        '$1ElektroMat.Forklaringssystem.startForklaring');
+        '$1startForklaring');
     count4 = countMatches(original, new_content);
     
-    % Additional pattern: ElektroMatBibTrinvis.ElektroMat.Forklaringssystem.tilfoejTrin
+    % Additional pattern: ElektroMatBibTrinvis.tilfoejTrin
     original = new_content;
     new_content = regexprep(new_content, ...
         '(ElektroMatBibTrinvis\.)tilfoejTrin', ...
-        '$1ElektroMat.Forklaringssystem.tilfoejTrin');
+        '$1tilfoejTrin');
     count5 = countMatches(original, new_content);
     
-    % Additional pattern: ElektroMatBibTrinvis.ElektroMat.Forklaringssystem.afslutForklaring
+    % Additional pattern: ElektroMatBibTrinvis.afslutForklaring
     original = new_content;
     new_content = regexprep(new_content, ...
         '(ElektroMatBibTrinvis\.)afslutForklaring', ...
-        '$1ElektroMat.Forklaringssystem.afslutForklaring');
+        '$1afslutForklaring');
     count6 = countMatches(original, new_content);
     
     % Count total changes

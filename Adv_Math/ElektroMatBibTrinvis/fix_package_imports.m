@@ -46,7 +46,7 @@ function fix_package_imports()
                     end
                     
                     % Add a blank line after the function declaration for readability
-                    new_content = [new_content, '    ', import_statement, newline, newline];
+                    new_content = [new_content, '    % Import forklaringssystem functions', newline, '    ', import_statement, newline, newline];
                     
                     for j = (func_line_idx+1):length(lines)
                         new_content = [new_content, lines{j}];
@@ -55,18 +55,18 @@ function fix_package_imports()
                         end
                     end
                     
-                    % Replace dotted calls with direct calls only if we can match exact patterns
-                    new_content = regexprep(new_content, 'ElektroMat\.Forklaringssystem\.startForklaring', 'startForklaring');
-                    new_content = regexprep(new_content, 'ElektroMat\.Forklaringssystem\.tilfoejTrin', 'tilfoejTrin');
-                    new_content = regexprep(new_content, 'ElektroMat\.Forklaringssystem\.afslutForklaring', 'afslutForklaring');
+                    % Replace dotted calls with direct calls
+                    new_content = strrep(new_content, 'ElektroMat.Forklaringssystem.startForklaring', 'startForklaring');
+                    new_content = strrep(new_content, 'ElektroMat.Forklaringssystem.tilfoejTrin', 'tilfoejTrin');
+                    new_content = strrep(new_content, 'ElektroMat.Forklaringssystem.afslutForklaring', 'afslutForklaring');
                     
                     % Write changes
                     writeFileContent(file_path, new_content);
                     files_changed = files_changed + 1;
                     total_changes = total_changes + 1;
                     fprintf('Updated %s: Added import and replaced dotted calls\n', file_path);
-                }
-            }
+                end
+            end
         end
     end
     
