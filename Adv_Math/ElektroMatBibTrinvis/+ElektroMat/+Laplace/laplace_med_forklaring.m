@@ -1,64 +1,39 @@
-function [F, forklaringsOutput] = laplace_med_forklaring(f, t, s)
-    % LAPLACE_MED_FORKLARING Beregner Laplacetransformationen med trinvis forklaring
-    %
-    % Syntax:
-    %   [F, forklaringsOutput] = ElektroMatBibTrinvis.laplace_med_forklaring(f, t, s)
-    %
-    % Input:
-    %   f - funktion af t (symbolsk)
-    %   t - tidsvariabel (symbolsk)
-    %   s - kompleks variabel (symbolsk)
-    % 
-    % Output:
-    %   F - Laplacetransformationen F(s)
-    %   forklaringsOutput - Struktur med forklaringstrin
+% +ElektroMat/+Laplace/forklarKonstant.m
+function [F, forklaringsOutput] = forklarKonstant(f, t, s, params, forklaringsOutput)
+    % Forklaring for konstant funktion
+    const_val = params.value;
     
-    % Starter forklaring
-    forklaringsOutput = ElektroMatBibTrinvis.startForklaring('Laplacetransformation');
+    forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 2, ...
+        'Identificer funktionstypen som konstant', ...
+        'Da funktionen ikke afhænger af t, er den en konstant funktion.', ...
+        ['f(t) = ' char(const_val)]);
     
-    % Vis den oprindelige funktion
-    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 1, ...
-        'Identificer den oprindelige funktion', ...
-        'Vi starter med at identificere den funktion, der skal transformeres.', ...
-        ['f(t) = ' char(f)]);
+    forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 3, ...
+        'Anvend definitionen af Laplacetransformationen', ...
+        'Vi begynder med definitionen af Laplacetransformationen og indsætter vores funktion.', ...
+        ['L{f(t)} = ∫ ' char(const_val) ' · e^(-st) dt fra 0 til ∞']);
     
-    % Analyser funktionstypen
-    [ftype, params] = ElektroMatBibTrinvis.analyserFunktion(f, t);
+    forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 4, ...
+        'Træk konstanten uden for integralet', ...
+        'Da konstanten ikke afhænger af integrationsvariablen, kan vi trække den uden for integralet.', ...
+        ['L{f(t)} = ' char(const_val) ' · ∫ e^(-st) dt fra 0 til ∞']);
     
-    % Uddybende forklaring baseret på funktionstype
-    switch ftype
-        case 'konstant'
-            [F, forklaringsOutput] = ElektroMatBibTrinvis.forklarKonstant(f, t, s, params, forklaringsOutput);
-        case 'polynom'
-            [F, forklaringsOutput] = ElektroMatBibTrinvis.forklarPolynom(f, t, s, params, forklaringsOutput);
-        case 'exp'
-            [F, forklaringsOutput] = ElektroMatBibTrinvis.forklarExp(f, t, s, params, forklaringsOutput);
-        case 'sin'
-            [F, forklaringsOutput] = ElektroMatBibTrinvis.forklarSin(f, t, s, params, forklaringsOutput);
-        case 'cos'
-            [F, forklaringsOutput] = ElektroMatBibTrinvis.forklarCos(f, t, s, params, forklaringsOutput);
-        case 'exp_sin'
-            [F, forklaringsOutput] = ElektroMatBibTrinvis.forklarExpSin(f, t, s, params, forklaringsOutput);
-        case 'exp_cos'
-            [F, forklaringsOutput] = ElektroMatBibTrinvis.forklarExpCos(f, t, s, params, forklaringsOutput);
-        otherwise
-            % For alle andre tilfælde - beregn og brug generel forklaring
-            F = laplace(f, t, s); % Brug MATLABs indbyggede funktion direkte
-            forklaringsOutput = ElektroMatBibTrinvis.forklarGenerel(f, t, s, forklaringsOutput);
-            forklaringsOutput = ElektroMatBibTrinvis.afslutForklaring(forklaringsOutput, ['F(s) = ' char(F)]);
-            return;
-    end
+    forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 5, ...
+        'Beregn integralet af den eksponentielle funktion', ...
+        'Integralet af e^(-st) med hensyn til t er -e^(-st)/s.', ...
+        ['L{f(t)} = ' char(const_val) ' · [-e^(-st)/s]_0^∞']);
     
-    % Beregn og vis det endelige resultat
-    F_check = laplace(f, t, s);
-    F_simple = simplify(F_check);
+    forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 6, ...
+        'Indsæt integrationsgrænserne', ...
+        'Ved at indsætte de øvre og nedre grænser får vi:',  ...
+        ['L{f(t)} = ' char(const_val) ' · (0 - (-1/s)) = ' char(const_val) ' · (1/s)']);
     
-    % Verificer resultatet
-    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, length(forklaringsOutput.trin) + 1, ...
-        'Verificer resultatet', ...
-        'Vi kan verificere resultatet ved at sammenligne med MATLAB''s symbolske beregning.', ...
-        ['L{f(t)} = ' char(F_simple)]);
+    % Resultat
+    F = const_val / s;
+    forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 7, ...
+        'Simplifiser resultatet', ...
+        'Vi kan nu udtrykke det endelige resultat i simpleste form.', ...
+        ['L{f(t)} = ' char(const_val) '/s = ' char(F)]);
     
-    % Afslut forklaringen
-    forklaringsOutput = ElektroMatBibTrinvis.afslutForklaring(forklaringsOutput, F);
+    return;
 end

@@ -1,3 +1,4 @@
+% +ElektroMat/+Forklaringssystem/startForklaring.m
 function forklaringsOutput = startForklaring(titel)
     % STARTFORKLARING Initialiserer et nyt forklaringsoutput-objekt
     %

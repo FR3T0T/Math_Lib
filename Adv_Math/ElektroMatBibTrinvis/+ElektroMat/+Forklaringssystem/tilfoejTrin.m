@@ -1,3 +1,4 @@
+% +ElektroMat/+Forklaringssystem/tilfoejTrin.m
 function forklaringsOutput = tilfoejTrin(forklaringsOutput, trinNummer, trinTitel, trinTekst, formel)
     % TILFØJTRIN Tilføjer et forklaringstrin til forklaringsoutputtet
     %

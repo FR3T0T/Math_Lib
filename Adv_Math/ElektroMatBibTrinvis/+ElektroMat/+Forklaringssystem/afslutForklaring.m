@@ -1,3 +1,4 @@
+% +ElektroMat/+Forklaringssystem/afslutForklaring.m
 function forklaringsOutput = afslutForklaring(forklaringsOutput, resultat)
     % AFSLUTFORKLARING Afslutter en forklaring med et resultat
     %
