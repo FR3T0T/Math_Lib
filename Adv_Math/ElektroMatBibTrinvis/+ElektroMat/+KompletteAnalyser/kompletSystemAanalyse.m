@@ -19,23 +19,23 @@ function kompletSystemAanalyse(num, den, system_navn)
     
     % 1. Konverter til overføringsfunktion
     disp('1. OVERFØRINGSFUNKTION:');
-    [~, ~, tf_forklaring] = ElektroMatBibTrinvis.diffLigningTilOverfoeringsfunktion_med_forklaring(num, den);
+    [~, ~, tf_forklaring] = ElektroMatBibTrinvis.diffLigningTilOverfoeringsfunktionMedForklaring(num, den);
     disp(' ');
     
     % 2. Analysér differentialligningen
     disp('2. ANALYSE AF DIFFERENTIALLIGNING:');
     a = den;  % Koefficienterne a er nævnerpolynomiet
-    forklaring = ElektroMatBibTrinvis.analyserDifferentialligning_med_forklaring(a);
+    forklaring = ElektroMatBibTrinvis.analyserDifferentialligningMedForklaring(a);
     disp(' ');
     
     % 3. Beregn og visualisér steprespons
     disp('3. STEPRESPONS:');
-    [~, ~, step_forklaring] = ElektroMatBibTrinvis.beregnSteprespons_med_forklaring(num, den, [0, 20]);
+    [~, ~, step_forklaring] = ElektroMatBibTrinvis.beregnStepresponsMedForklaring(num, den, [0, 20]);
     disp(' ');
     
     % 4. Beregn og visualisér frekvensrespons
     disp('4. FREKVENSRESPONS (BODE-DIAGRAM):');
-    bode_forklaring = ElektroMatBibTrinvis.visBodeDiagram_med_forklaring(num, den, [0.01, 100]);
+    bode_forklaring = ElektroMatBibTrinvis.visBodeDiagramMedForklaring(num, den, [0.01, 100]);
     disp(' ');
     
     % Analysér stabilitet

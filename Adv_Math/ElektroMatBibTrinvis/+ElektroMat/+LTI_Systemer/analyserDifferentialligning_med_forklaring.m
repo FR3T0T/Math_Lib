@@ -1,11 +1,11 @@
-function forklaringsOutput = analyserDifferentialligning_med_forklaring(a)
+function forklaringsOutput = analyserDifferentialligningMedForklaring(a)
     % Import forklaringssystem functions
     import ElektroMat.Forklaringssystem.*
 
     % ANALYSERDIFFERENTIALLIGNING_MED_FORKLARING Analyserer en differentialligning med trinvis forklaring
     %
     % Syntax:
-    %   forklaringsOutput = ElektroMatBibTrinvis.analyserDifferentialligning_med_forklaring(a)
+    %   forklaringsOutput = ElektroMatBibTrinvis.analyserDifferentialligningMedForklaring(a)
     %
     % Input:
     %   a - koefficienter [a_n, a_{n-1}, ..., a_0]

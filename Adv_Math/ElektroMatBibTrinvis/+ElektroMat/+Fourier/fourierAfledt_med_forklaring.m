@@ -1,11 +1,11 @@
-function [F_d, forklaringsOutput] = fourierAfledt_med_forklaring(f, t, omega, n)
+function [F_d, forklaringsOutput] = fourierAfledtMedForklaring(f, t, omega, n)
     % Import forklaringssystem functions
     import ElektroMat.Forklaringssystem.*
 
     % FOURIERAFLEDT_MED_FORKLARING Beregner Fouriertransformationen af n'te afledte
     %
     % Syntax:
-    %   [F_d, forklaringsOutput] = ElektroMatBibTrinvis.fourierAfledt_med_forklaring(f, t, omega, n)
+    %   [F_d, forklaringsOutput] = ElektroMatBibTrinvis.fourierAfledtMedForklaring(f, t, omega, n)
     %
     % Input:
     %   f - funktion af t (symbolsk)
@@ -27,7 +27,7 @@ function [F_d, forklaringsOutput] = fourierAfledt_med_forklaring(f, t, omega, n)
         ['f(t) = ' char(f)]);
 
     % Beregn Fouriertransformationen af f(t)
-    [F, F_forklaring] = ElektroMatBibTrinvis.fourier_med_forklaring(f, t, omega);
+    [F, F_forklaring] = ElektroMatBibTrinvis.fourierMedForklaring(f, t, omega);
 
     forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 2, ...
         'Beregn Fouriertransformationen af f(t)', ...

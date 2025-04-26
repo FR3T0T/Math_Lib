@@ -1,11 +1,11 @@
-function [y, forklaringsOutput] = beregnUdgangssignal_med_forklaring(H_s, X_s, s, t)
+function [y, forklaringsOutput] = beregnUdgangssignalMedForklaring(H_s, X_s, s, t)
     % Import forklaringssystem functions
     import ElektroMat.Forklaringssystem.*
 
     % BEREGNUDGANGSSIGNAL_MED_FORKLARING Beregner udgangssignalet ved hjælp af overføringsfunktion og indgangssignal
     %
     % Syntax:
-    %   [y, forklaringsOutput] = ElektroMatBibTrinvis.beregnUdgangssignal_med_forklaring(H_s, X_s, s, t)
+    %   [y, forklaringsOutput] = ElektroMatBibTrinvis.beregnUdgangssignalMedForklaring(H_s, X_s, s, t)
     %
     % Input:
     %   H_s - overføringsfunktion (symbolsk udtryk)
@@ -74,7 +74,7 @@ function [y, forklaringsOutput] = beregnUdgangssignal_med_forklaring(H_s, X_s, s
     end
 
     % Find den inverse Laplacetransformation
-    [y, inv_forklaring] = ElektroMatBibTrinvis.inversLaplace_med_forklaring(Y_s_simpel, s, t);
+    [y, inv_forklaring] = ElektroMatBibTrinvis.inversLaplaceMedForklaring(Y_s_simpel, s, t);
 
     % Tilføj yderligere trin fra den inverse Laplacetransformation
     for i = 2:length(inv_forklaring.trin)

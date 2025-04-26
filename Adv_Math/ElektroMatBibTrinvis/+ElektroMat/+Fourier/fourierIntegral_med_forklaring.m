@@ -1,11 +1,11 @@
-function [F_int, forklaringsOutput] = fourierIntegral_med_forklaring(f, t, omega)
+function [F_int, forklaringsOutput] = fourierIntegralMedForklaring(f, t, omega)
     % Import forklaringssystem functions
     import ElektroMat.Forklaringssystem.*
 
     % FOURIERINTEGRAL_MED_FORKLARING Beregner Fouriertransformationen af ∫_{-∞}^{t} f(τ)dτ
     %
     % Syntax:
-    %   [F_int, forklaringsOutput] = ElektroMatBibTrinvis.fourierIntegral_med_forklaring(f, t, omega)
+    %   [F_int, forklaringsOutput] = ElektroMatBibTrinvis.fourierIntegralMedForklaring(f, t, omega)
     %
     % Input:
     %   f - funktion af t (symbolsk)
@@ -26,7 +26,7 @@ function [F_int, forklaringsOutput] = fourierIntegral_med_forklaring(f, t, omega
         ['f(t) = ' char(f) '\ng(t) = ∫_{-∞}^{t} f(τ)dτ']);
 
     % Beregn Fouriertransformationen af f(t)
-    [F, F_forklaring] = ElektroMatBibTrinvis.fourier_med_forklaring(f, t, omega);
+    [F, F_forklaring] = ElektroMatBibTrinvis.fourierMedForklaring(f, t, omega);
 
     forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 2, ...
         'Beregn Fouriertransformationen af f(t)', ...

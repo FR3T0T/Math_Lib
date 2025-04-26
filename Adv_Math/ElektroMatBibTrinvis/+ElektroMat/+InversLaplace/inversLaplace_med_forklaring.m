@@ -1,11 +1,11 @@
-function [f, forklaringsOutput] = inversLaplace_med_forklaring(F, s, t)
+function [f, forklaringsOutput] = inversLaplaceMedForklaring(F, s, t)
     % Import forklaringssystem functions
     import ElektroMat.Forklaringssystem.*
 
     % INVERSLAPLACE_MED_FORKLARING Beregner invers Laplacetransformation med trinvis forklaring
     %
     % Syntax:
-    %   [f, forklaringsOutput] = ElektroMatBibTrinvis.inversLaplace_med_forklaring(F, s, t)
+    %   [f, forklaringsOutput] = ElektroMatBibTrinvis.inversLaplaceMedForklaring(F, s, t)
     %
     % Input:
     %   F - funktion af s (symbolsk)

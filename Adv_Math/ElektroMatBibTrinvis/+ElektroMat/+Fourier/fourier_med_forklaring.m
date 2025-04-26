@@ -1,12 +1,12 @@
 % +ElektroMat/+Fourier/fourier_med_forklaring.m
-function [F, forklaringsOutput] = fourier_med_forklaring(f, t, omega)
+function [F, forklaringsOutput] = fourierMedForklaring(f, t, omega)
     % Import forklaringssystem functions
     import ElektroMat.Forklaringssystem.*
 
     % FOURIER_MED_FORKLARING Beregner Fouriertransformationen med trinvis forklaring
     %
     % Syntax:
-    %   [F, forklaringsOutput] = ElektroMatBibTrinvis.fourier_med_forklaring(f, t, omega)
+    %   [F, forklaringsOutput] = ElektroMatBibTrinvis.fourierMedForklaring(f, t, omega)
     %
     % Input:
     %   f - funktion af t (symbolsk)

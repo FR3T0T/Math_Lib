@@ -1,11 +1,11 @@
-function [G, forklaringsOutput] = diffLaplace_med_forklaring(F_s, s, n)
+function [G, forklaringsOutput] = diffLaplaceMedForklaring(F_s, s, n)
     % Import forklaringssystem functions
     import ElektroMat.Forklaringssystem.*
 
     % DIFFLAPLACE_MED_FORKLARING Beregner den n'te afledte af en Laplacetransformation med trinvis forklaring
     %
     % Syntax:
-    %   [G, forklaringsOutput] = ElektroMatBibTrinvis.diffLaplace_med_forklaring(F_s, s, n)
+    %   [G, forklaringsOutput] = ElektroMatBibTrinvis.diffLaplaceMedForklaring(F_s, s, n)
     %
     % Input:
     %   F_s - Laplacetransformation F(s) (symbolsk udtryk)

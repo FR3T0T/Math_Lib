@@ -1,11 +1,11 @@
-function [cn, forklaringsOutput] = fourierKoefficienter_med_forklaring(f, t, T)
+function [cn, forklaringsOutput] = fourierKoefficienterMedForklaring(f, t, T)
     % Import forklaringssystem functions
     import ElektroMat.Forklaringssystem.*
 
     % FOURIERKOEFFICIENTER_MED_FORKLARING Beregner Fourierkoefficienter med trinvis forklaring
     %
     % Syntax:
-    %   [cn, forklaringsOutput] = ElektroMatBibTrinvis.fourierKoefficienter_med_forklaring(f, t, T)
+    %   [cn, forklaringsOutput] = ElektroMatBibTrinvis.fourierKoefficienterMedForklaring(f, t, T)
     %
     % Input:
     %   f - periodisk funktion som symbolsk udtryk

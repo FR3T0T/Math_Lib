@@ -1,11 +1,11 @@
-function [P, forklaringsOutput] = effektTaethed_med_forklaring(F, omega)
+function [P, forklaringsOutput] = effektTaethedMedForklaring(F, omega)
     % Import forklaringssystem functions
     import ElektroMat.Forklaringssystem.*
 
     % EFFEKTTAETHED_MED_FORKLARING Beregner og forklarer effekttæthedsspektrum
     %
     % Syntax:
-    %   [P, forklaringsOutput] = ElektroMatBibTrinvis.effektTaethed_med_forklaring(F, omega)
+    %   [P, forklaringsOutput] = ElektroMatBibTrinvis.effektTaethedMedForklaring(F, omega)
     %
     % Input:
     %   F - Fouriertransformeret periodisk signal eller amplitudevektor af Fourierkoefficienter

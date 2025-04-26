@@ -1,11 +1,11 @@
-function [F, forklaringsOutput] = deltaFunktion_med_forklaring(t0, t, s)
+function [F, forklaringsOutput] = deltaFunktionMedForklaring(t0, t, s)
     % Import forklaringssystem functions
     import ElektroMat.Forklaringssystem.*
 
     % DELTAFUNKTION_MED_FORKLARING Forklarer Dirac's delta-funktion og dens Laplacetransformation
     %
     % Syntax:
-    %   [F, forklaringsOutput] = ElektroMatBibTrinvis.deltaFunktion_med_forklaring(t0, t, s)
+    %   [F, forklaringsOutput] = ElektroMatBibTrinvis.deltaFunktionMedForklaring(t0, t, s)
     %
     % Input:
     %   t0 - tidspunkt for impulsen

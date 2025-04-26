@@ -28,7 +28,7 @@ function RLCKredsloebsAnalyse(R, L, C)
     
     % 2. Konverter til overføringsfunktion
     disp('2. OVERFØRINGSFUNKTION:');
-    [num, den, tf_forklaring] = ElektroMatBibTrinvis.diffLigningTilOverfoeringsfunktion_med_forklaring(b, a);
+    [num, den, tf_forklaring] = ElektroMatBibTrinvis.diffLigningTilOverfoeringsfunktionMedForklaring(b, a);
     disp(' ');
     
     % 3. Beregn resonansfrekvens og dæmpning
@@ -64,17 +64,17 @@ function RLCKredsloebsAnalyse(R, L, C)
     
     % 4. Analysér differentialligningen
     disp('4. ANALYSE AF DIFFERENTIALLIGNING:');
-    forklaring = ElektroMatBibTrinvis.analyserDifferentialligning_med_forklaring(a);
+    forklaring = ElektroMatBibTrinvis.analyserDifferentialligningMedForklaring(a);
     disp(' ');
     
     % 5. Beregn og visualisér steprespons
     disp('5. STEPRESPONS:');
-    [~, ~, step_forklaring] = ElektroMatBibTrinvis.beregnSteprespons_med_forklaring(num, den, [0, 10/omega_0]);
+    [~, ~, step_forklaring] = ElektroMatBibTrinvis.beregnStepresponsMedForklaring(num, den, [0, 10/omega_0]);
     disp(' ');
     
     % 6. Beregn og visualisér frekvensrespons
     disp('6. FREKVENSRESPONS (BODE-DIAGRAM):');
-    bode_forklaring = ElektroMatBibTrinvis.visBodeDiagram_med_forklaring(num, den, [omega_0/10, omega_0*10]);
+    bode_forklaring = ElektroMatBibTrinvis.visBodeDiagramMedForklaring(num, den, [omega_0/10, omega_0*10]);
     disp(' ');
     
     disp('7. IMPEDANSANALYSE:');

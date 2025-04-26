@@ -26,50 +26,50 @@ classdef ElektroMatBibTrinvis
         end
         
         %% LAPLACE TRANSFORMATIONER MED TRINVISE FORKLARINGER %%
-        function [F, forklaringsOutput] = laplace_med_forklaring(f, t, s)
-            [F, forklaringsOutput] = ElektroMat.Laplace.laplace_med_forklaring(f, t, s);
+        function [F, forklaringsOutput] = laplaceMedForklaring(f, t, s)
+            [F, forklaringsOutput] = ElektroMat.Laplace.laplaceMedForklaring(f, t, s);
         end
         
-        function [f, forklaringsOutput] = inversLaplace_med_forklaring(F, s, t)
-            [f, forklaringsOutput] = ElektroMat.InversLaplace.inversLaplace_med_forklaring(F, s, t);
+        function [f, forklaringsOutput] = inversLaplaceMedForklaring(F, s, t)
+            [f, forklaringsOutput] = ElektroMat.InversLaplace.inversLaplaceMedForklaring(F, s, t);
         end
         
         %% NYE LAPLACE FUNKTIONER (UDVIDELSE) %%
-        function [y, forklaringsOutput] = beregnUdgangssignal_med_forklaring(H_s, X_s, s, t)
-            [y, forklaringsOutput] = ElektroMat.LTI_Systemer.beregnUdgangssignal_med_forklaring(H_s, X_s, s, t);
+        function [y, forklaringsOutput] = beregnUdgangssignalMedForklaring(H_s, X_s, s, t)
+            [y, forklaringsOutput] = ElektroMat.LTI_Systemer.beregnUdgangssignalMedForklaring(H_s, X_s, s, t);
         end
         
-        function [G, forklaringsOutput] = diffLaplace_med_forklaring(F_s, s, n)
-            [G, forklaringsOutput] = ElektroMat.Laplace.diffLaplace_med_forklaring(F_s, s, n);
+        function [G, forklaringsOutput] = diffLaplaceMedForklaring(F_s, s, n)
+            [G, forklaringsOutput] = ElektroMat.Laplace.diffLaplaceMedForklaring(F_s, s, n);
         end
         
         %% FOURIER TRANSFORMATIONER MED TRINVISE FORKLARINGER (NYE) %%
-        function [F, forklaringsOutput] = fourier_med_forklaring(f, t, omega)
-            [F, forklaringsOutput] = ElektroMat.Fourier.fourier_med_forklaring(f, t, omega);
+        function [F, forklaringsOutput] = fourierMedForklaring(f, t, omega)
+            [F, forklaringsOutput] = ElektroMat.Fourier.fourierMedForklaring(f, t, omega);
         end
         
-        function [F_d, forklaringsOutput] = fourierAfledt_med_forklaring(f, t, omega, n)
-            [F_d, forklaringsOutput] = ElektroMat.Fourier.fourierAfledt_med_forklaring(f, t, omega, n);
+        function [F_d, forklaringsOutput] = fourierAfledtMedForklaring(f, t, omega, n)
+            [F_d, forklaringsOutput] = ElektroMat.Fourier.fourierAfledtMedForklaring(f, t, omega, n);
         end
         
-        function [F_t, forklaringsOutput] = fourierTidMultiplikation_med_forklaring(f, t, omega, n, kompleks)
+        function [F_t, forklaringsOutput] = fourierTidMultiplikationMedForklaring(f, t, omega, n, kompleks)
             if nargin < 5
-                [F_t, forklaringsOutput] = ElektroMat.Fourier.fourierTidMultiplikation_med_forklaring(f, t, omega, n);
+                [F_t, forklaringsOutput] = ElektroMat.Fourier.fourierTidMultiplikationMedForklaring(f, t, omega, n);
             else
-                [F_t, forklaringsOutput] = ElektroMat.Fourier.fourierTidMultiplikation_med_forklaring(f, t, omega, n, kompleks);
+                [F_t, forklaringsOutput] = ElektroMat.Fourier.fourierTidMultiplikationMedForklaring(f, t, omega, n, kompleks);
             end
         end
         
-        function [F_scaled, forklaringsOutput] = fourierSkalering_med_forklaring(f, t, omega, a, b)
-            [F_scaled, forklaringsOutput] = ElektroMat.Fourier.fourierSkalering_med_forklaring(f, t, omega, a, b);
+        function [F_scaled, forklaringsOutput] = fourierSkaleringMedForklaring(f, t, omega, a, b)
+            [F_scaled, forklaringsOutput] = ElektroMat.Fourier.fourierSkaleringMedForklaring(f, t, omega, a, b);
         end
         
-        function [F_int, forklaringsOutput] = fourierIntegral_med_forklaring(f, t, omega)
-            [F_int, forklaringsOutput] = ElektroMat.Fourier.fourierIntegral_med_forklaring(f, t, omega);
+        function [F_int, forklaringsOutput] = fourierIntegralMedForklaring(f, t, omega)
+            [F_int, forklaringsOutput] = ElektroMat.Fourier.fourierIntegralMedForklaring(f, t, omega);
         end
         
-        function [F_inv, forklaringsOutput] = fourierAfFourier_med_forklaring(f, t, omega)
-            [F_inv, forklaringsOutput] = ElektroMat.Fourier.fourierAfFourier_med_forklaring(f, t, omega);
+        function [F_inv, forklaringsOutput] = fourierAfFourierMedForklaring(f, t, omega)
+            [F_inv, forklaringsOutput] = ElektroMat.Fourier.fourierAfFourierMedForklaring(f, t, omega);
         end
         
         %% FUNKTIONSANALYSEFUNKTIONER %%
@@ -140,20 +140,20 @@ classdef ElektroMatBibTrinvis
         end
         
         %% LTI SYSTEM FUNKTIONER MED TRINVISE FORKLARINGER %%
-        function [num, den, forklaringsOutput] = diffLigningTilOverfoeringsfunktion_med_forklaring(b, a)
-            [num, den, forklaringsOutput] = ElektroMat.LTI_Systemer.diffLigningTilOverfoeringsfunktion_med_forklaring(b, a);
+        function [num, den, forklaringsOutput] = diffLigningTilOverfoeringsfunktionMedForklaring(b, a)
+            [num, den, forklaringsOutput] = ElektroMat.LTI_Systemer.diffLigningTilOverfoeringsfunktionMedForklaring(b, a);
         end
         
-        function forklaringsOutput = analyserDifferentialligning_med_forklaring(a)
-            forklaringsOutput = ElektroMat.LTI_Systemer.analyserDifferentialligning_med_forklaring(a);
+        function forklaringsOutput = analyserDifferentialligningMedForklaring(a)
+            forklaringsOutput = ElektroMat.LTI_Systemer.analyserDifferentialligningMedForklaring(a);
         end
         
-        function [t, y, forklaringsOutput] = beregnSteprespons_med_forklaring(num, den, t_range)
-            [t, y, forklaringsOutput] = ElektroMat.LTI_Systemer.beregnSteprespons_med_forklaring(num, den, t_range);
+        function [t, y, forklaringsOutput] = beregnStepresponsMedForklaring(num, den, t_range)
+            [t, y, forklaringsOutput] = ElektroMat.LTI_Systemer.beregnStepresponsMedForklaring(num, den, t_range);
         end
         
-        function forklaringsOutput = visBodeDiagram_med_forklaring(num, den, omega_range)
-            forklaringsOutput = ElektroMat.LTI_Systemer.visBodeDiagram_med_forklaring(num, den, omega_range);
+        function forklaringsOutput = visBodeDiagramMedForklaring(num, den, omega_range)
+            forklaringsOutput = ElektroMat.LTI_Systemer.visBodeDiagramMedForklaring(num, den, omega_range);
         end
         
         %% KOMPLETTE ANALYSERAPPORTER MED TRINVISE FORKLARINGER %%
@@ -178,47 +178,47 @@ classdef ElektroMatBibTrinvis
         end
         
         %% FOLDNING OG FOLDNINGSSÆTNING FUNKTIONER %%
-        function [h, forklaringsOutput] = foldning_med_forklaring(f, g, t, t_range)
-            [h, forklaringsOutput] = ElektroMat.Foldning.foldning_med_forklaring(f, g, t, t_range);
+        function [h, forklaringsOutput] = foldningMedForklaring(f, g, t, t_range)
+            [h, forklaringsOutput] = ElektroMat.Foldning.foldningMedForklaring(f, g, t, t_range);
         end
         
-        function [H, forklaringsOutput] = foldningssaetning_med_forklaring(F, G, s, t)
-            [H, forklaringsOutput] = ElektroMat.Foldning.foldningssaetning_med_forklaring(F, G, s, t);
+        function [H, forklaringsOutput] = foldningssaetningMedForklaring(F, G, s, t)
+            [H, forklaringsOutput] = ElektroMat.Foldning.foldningssaetningMedForklaring(F, G, s, t);
         end
         
         %% SPECIELLE FUNKTIONER %%
-        function [F, forklaringsOutput] = deltaFunktion_med_forklaring(t0, t, s)
-            [F, forklaringsOutput] = ElektroMat.SpecielleFunktioner.deltaFunktion_med_forklaring(t0, t, s);
+        function [F, forklaringsOutput] = deltaFunktionMedForklaring(t0, t, s)
+            [F, forklaringsOutput] = ElektroMat.SpecielleFunktioner.deltaFunktionMedForklaring(t0, t, s);
         end
         
-        function [F, forklaringsOutput] = enhedsTrin_med_forklaring(t0, t, s)
-            [F, forklaringsOutput] = ElektroMat.SpecielleFunktioner.enhedsTrin_med_forklaring(t0, t, s);
+        function [F, forklaringsOutput] = enhedsTrinMedForklaring(t0, t, s)
+            [F, forklaringsOutput] = ElektroMat.SpecielleFunktioner.enhedsTrinMedForklaring(t0, t, s);
         end
         
-        function [F, forklaringsOutput] = forsinkelsesRegel_med_forklaring(f_expr, t0, t, s)
-            [F, forklaringsOutput] = ElektroMat.SpecielleFunktioner.forsinkelsesRegel_med_forklaring(f_expr, t0, t, s);
+        function [F, forklaringsOutput] = forsinkelsesRegelMedForklaring(f_expr, t0, t, s)
+            [F, forklaringsOutput] = ElektroMat.SpecielleFunktioner.forsinkelsesRegelMedForklaring(f_expr, t0, t, s);
         end
         
         %% FOURIERRÆKKE FUNKTIONER %%
-        function [cn, forklaringsOutput] = fourierKoefficienter_med_forklaring(f, t, T)
-            [cn, forklaringsOutput] = ElektroMat.Fourier.fourierKoefficienter_med_forklaring(f, t, T);
+        function [cn, forklaringsOutput] = fourierKoefficienterMedForklaring(f, t, T)
+            [cn, forklaringsOutput] = ElektroMat.Fourier.fourierKoefficienterMedForklaring(f, t, T);
         end
         
-        function [f_approx, forklaringsOutput] = fourierRaekke_med_forklaring(cn, t, T, N)
-            [f_approx, forklaringsOutput] = ElektroMat.Fourier.fourierRaekke_med_forklaring(cn, t, T, N);
+        function [f_approx, forklaringsOutput] = fourierRaekkeMedForklaring(cn, t, T, N)
+            [f_approx, forklaringsOutput] = ElektroMat.Fourier.fourierRaekkeMedForklaring(cn, t, T, N);
         end
         
-        function [P, forklaringsOutput] = parsevalTeorem_med_forklaring(cn, N)
-            [P, forklaringsOutput] = ElektroMat.Fourier.parsevalTeorem_med_forklaring(cn, N);
+        function [P, forklaringsOutput] = parsevalTeoremMedForklaring(cn, N)
+            [P, forklaringsOutput] = ElektroMat.Fourier.parsevalTeoremMedForklaring(cn, N);
         end
         
         %% ENERGI- OG EFFEKTTÆTHEDSFUNKTIONER %%
-        function [E, forklaringsOutput] = energiTaethed_med_forklaring(F, omega)
-            [E, forklaringsOutput] = ElektroMat.Energi_og_Effekt.energiTaethed_med_forklaring(F, omega);
+        function [E, forklaringsOutput] = energiTaethedMedForklaring(F, omega)
+            [E, forklaringsOutput] = ElektroMat.Energi_og_Effekt.energiTaethedMedForklaring(F, omega);
         end
         
-        function [P, forklaringsOutput] = effektTaethed_med_forklaring(F, omega)
-            [P, forklaringsOutput] = ElektroMat.Energi_og_Effekt.effektTaethed_med_forklaring(F, omega);
+        function [P, forklaringsOutput] = effektTaethedMedForklaring(F, omega)
+            [P, forklaringsOutput] = ElektroMat.Energi_og_Effekt.effektTaethedMedForklaring(F, omega);
         end
     end
 end

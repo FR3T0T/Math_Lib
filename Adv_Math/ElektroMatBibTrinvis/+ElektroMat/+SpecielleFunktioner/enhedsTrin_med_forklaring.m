@@ -1,8 +1,8 @@
-function [F, forklaringsOutput] = enhedsTrin_med_forklaring(t0, t, s)
+function [F, forklaringsOutput] = enhedsTrinMedForklaring(t0, t, s)
     % ENHEDSTRIN_MED_FORKLARING Forklarer enhedstrinfunktionen og dens Laplacetransformation
     %
     % Syntax:
-    %   [F, forklaringsOutput] = ElektroMat.SpecielleFunktioner.enhedsTrin_med_forklaring(t0, t, s)
+    %   [F, forklaringsOutput] = ElektroMat.SpecielleFunktioner.enhedsTrinMedForklaring(t0, t, s)
     %
     % Input:
     %   t0 - forskydning af enhedstrinfunktionen

@@ -1,11 +1,11 @@
-function [P, forklaringsOutput] = parsevalTeorem_med_forklaring(cn, N)
+function [P, forklaringsOutput] = parsevalTeoremMedForklaring(cn, N)
     % Import forklaringssystem functions
     import ElektroMat.Forklaringssystem.*
 
     % PARSEVALTEOREM_MED_FORKLARING Forklarer Parsevals teorem og beregner signalets effekt
     %
     % Syntax:
-    %   [P, forklaringsOutput] = ElektroMatBibTrinvis.parsevalTeorem_med_forklaring(cn, N)
+    %   [P, forklaringsOutput] = ElektroMatBibTrinvis.parsevalTeoremMedForklaring(cn, N)
     %
     % Input:
     %   cn - struktur med Fourierkoefficienter

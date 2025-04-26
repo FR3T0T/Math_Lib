@@ -1,11 +1,11 @@
-function [num, den, forklaringsOutput] = diffLigningTilOverfoeringsfunktion_med_forklaring(b, a)
+function [num, den, forklaringsOutput] = diffLigningTilOverfoeringsfunktionMedForklaring(b, a)
     % Import forklaringssystem functions
     import ElektroMat.Forklaringssystem.*
 
     % DIFFLIGNINGTILOVERFØRINGSFUNKTION_MED_FORKLARING Konverterer differentialligning til overføringsfunktion med trinvis forklaring
     %
     % Syntax:
-    %   [num, den, forklaringsOutput] = ElektroMatBibTrinvis.diffLigningTilOverfoeringsfunktion_med_forklaring(b, a)
+    %   [num, den, forklaringsOutput] = ElektroMatBibTrinvis.diffLigningTilOverfoeringsfunktionMedForklaring(b, a)
     %
     % Input:
     %   b - koefficienter for input [b_m, b_{m-1}, ..., b_0]

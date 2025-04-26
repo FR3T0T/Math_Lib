@@ -1,11 +1,11 @@
-function [f_approx, forklaringsOutput] = fourierRaekke_med_forklaring(cn, t, T, N)
+function [f_approx, forklaringsOutput] = fourierRaekkeMedForklaring(cn, t, T, N)
     % Import forklaringssystem functions
     import ElektroMat.Forklaringssystem.*
 
     % FOURIERRAEKKE_MED_FORKLARING Beregner Fourierrækkeapproksimation med trinvis forklaring
     %
     % Syntax:
-    %   [f_approx, forklaringsOutput] = ElektroMatBibTrinvis.fourierRaekke_med_forklaring(cn, t, T, N)
+    %   [f_approx, forklaringsOutput] = ElektroMatBibTrinvis.fourierRaekkeMedForklaring(cn, t, T, N)
     %
     % Input:
     %   cn - struktur med Fourierkoefficienter

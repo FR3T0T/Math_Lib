@@ -1,11 +1,11 @@
-function forklaringsOutput = visBodeDiagram_med_forklaring(num, den, omega_range)
+function forklaringsOutput = visBodeDiagramMedForklaring(num, den, omega_range)
     % Import forklaringssystem functions
     import ElektroMat.Forklaringssystem.*
 
     % VISBODEDIAGRAM_MED_FORKLARING Visualiserer Bode-diagram med trinvis forklaring
     %
     % Syntax:
-    %   forklaringsOutput = ElektroMatBibTrinvis.visBodeDiagram_med_forklaring(num, den, omega_range)
+    %   forklaringsOutput = ElektroMatBibTrinvis.visBodeDiagramMedForklaring(num, den, omega_range)
     %
     % Input:
     %   num - tæller polynomium

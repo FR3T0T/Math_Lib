@@ -1,11 +1,11 @@
-function [F_t, forklaringsOutput] = fourierTidMultiplikation_med_forklaring(f, t, omega, n, kompleks)
+function [F_t, forklaringsOutput] = fourierTidMultiplikationMedForklaring(f, t, omega, n, kompleks)
     % Import forklaringssystem functions
     import ElektroMat.Forklaringssystem.*
 
     % FOURIERTIDMULTIPLIKATION_MED_FORKLARING Beregner Fouriertransformationen af t^n·f(t)
     %
     % Syntax:
-    %   [F_t, forklaringsOutput] = ElektroMatBibTrinvis.fourierTidMultiplikation_med_forklaring(f, t, omega, n, kompleks)
+    %   [F_t, forklaringsOutput] = ElektroMatBibTrinvis.fourierTidMultiplikationMedForklaring(f, t, omega, n, kompleks)
     %
     % Input:
     %   f - funktion af t (symbolsk)
@@ -43,7 +43,7 @@ function [F_t, forklaringsOutput] = fourierTidMultiplikation_med_forklaring(f, t
     end
 
     % Beregn Fouriertransformationen af f(t)
-    [F, F_forklaring] = ElektroMatBibTrinvis.fourier_med_forklaring(f, t, omega);
+    [F, F_forklaring] = ElektroMatBibTrinvis.fourierMedForklaring(f, t, omega);
 
     forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 2, ...
         'Beregn Fouriertransformationen af f(t)', ...

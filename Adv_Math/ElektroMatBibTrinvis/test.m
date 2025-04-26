@@ -8,17 +8,17 @@ syms s t;
 % We'll use your library's functions to compute the Laplace transforms
 
 % Calculate Laplace transform of u(t) with explanation
-[F1, forklaring1] = ElektroMatBibTrinvis.enhedsTrin_med_forklaring(0, t, s);
+[F1, forklaring1] = ElektroMatBibTrinvis.enhedsTrinMedForklaring(0, t, s);
 disp('Laplacetransformation af u(t):');
 disp(F1);
 
 % Calculate Laplace transform of u(t-1) with explanation
-[F2, forklaring2] = ElektroMatBibTrinvis.enhedsTrin_med_forklaring(1, t, s);
+[F2, forklaring2] = ElektroMatBibTrinvis.enhedsTrinMedForklaring(1, t, s);
 disp('Laplacetransformation af u(t-1):');
 disp(F2);
 
 % Calculate Laplace transform of u(t-2) with explanation
-[F3, forklaring3] = ElektroMatBibTrinvis.enhedsTrin_med_forklaring(2, t, s);
+[F3, forklaring3] = ElektroMatBibTrinvis.enhedsTrinMedForklaring(2, t, s);
 disp('Laplacetransformation af u(t-2):');
 disp(F3);
 

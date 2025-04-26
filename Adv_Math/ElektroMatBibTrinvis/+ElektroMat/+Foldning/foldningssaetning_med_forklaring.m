@@ -1,11 +1,11 @@
-function [H, forklaringsOutput] = foldningssaetning_med_forklaring(F, G, s, t)
+function [H, forklaringsOutput] = foldningssaetningMedForklaring(F, G, s, t)
     % Import forklaringssystem functions
     import ElektroMat.Forklaringssystem.*
 
     % FOLDNINGSSAETNING_MED_FORKLARING Demonstrerer foldningssætningen med trinvis forklaring
     %
     % Syntax:
-    %   [H, forklaringsOutput] = ElektroMatBibTrinvis.foldningssaetning_med_forklaring(F, G, s, t)
+    %   [H, forklaringsOutput] = ElektroMatBibTrinvis.foldningssaetningMedForklaring(F, G, s, t)
     %
     % Input:
     %   F - første Laplacetransformation som symbolsk udtryk

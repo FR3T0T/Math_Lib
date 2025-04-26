@@ -1,11 +1,11 @@
-function [t, y, forklaringsOutput] = beregnSteprespons_med_forklaring(num, den, t_range)
+function [t, y, forklaringsOutput] = beregnStepresponsMedForklaring(num, den, t_range)
     % Import forklaringssystem functions
     import ElektroMat.Forklaringssystem.*
 
     % BEREGNSTEPRESPONS_MED_FORKLARING Beregner steprespons med trinvis forklaring
     %
     % Syntax:
-    %   [t, y, forklaringsOutput] = ElektroMatBibTrinvis.beregnSteprespons_med_forklaring(num, den, t_range)
+    %   [t, y, forklaringsOutput] = ElektroMatBibTrinvis.beregnStepresponsMedForklaring(num, den, t_range)
     %
     % Input:
     %   num - tæller polynomium

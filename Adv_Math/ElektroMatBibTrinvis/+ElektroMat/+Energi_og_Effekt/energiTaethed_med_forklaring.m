@@ -1,11 +1,11 @@
-function [E, forklaringsOutput] = energiTaethed_med_forklaring(F, omega)
+function [E, forklaringsOutput] = energiTaethedMedForklaring(F, omega)
     % Import forklaringssystem functions
     import ElektroMat.Forklaringssystem.*
 
     % ENERGITAETHED_MED_FORKLARING Beregner og forklarer energitæthedsspektrum
     %
     % Syntax:
-    %   [E, forklaringsOutput] = ElektroMatBibTrinvis.energiTaethed_med_forklaring(F, omega)
+    %   [E, forklaringsOutput] = ElektroMatBibTrinvis.energiTaethedMedForklaring(F, omega)
     %
     % Input:
     %   F - Fouriertransformeret signal som symbolsk udtryk eller numerisk vektor

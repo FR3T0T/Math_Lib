@@ -1,11 +1,11 @@
-function [h, forklaringsOutput] = foldning_med_forklaring(f, g, t, t_range)
+function [h, forklaringsOutput] = foldningMedForklaring(f, g, t, t_range)
     % Import forklaringssystem functions
     import ElektroMat.Forklaringssystem.*
 
     % FOLDNING_MED_FORKLARING Beregner foldningen af to funktioner med trinvis forklaring
     %
     % Syntax:
-    %   [h, forklaringsOutput] = ElektroMatBibTrinvis.foldning_med_forklaring(f, g, t, t_range)
+    %   [h, forklaringsOutput] = ElektroMatBibTrinvis.foldningMedForklaring(f, g, t, t_range)
     %
     % Input:
     %   f - første funktion som symbolsk udtryk eller function handle

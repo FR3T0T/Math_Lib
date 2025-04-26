@@ -1,11 +1,11 @@
-function [F, forklaringsOutput] = forsinkelsesRegel_med_forklaring(f_expr, t0, t, s)
+function [F, forklaringsOutput] = forsinkelsesRegelMedForklaring(f_expr, t0, t, s)
     % Import forklaringssystem functions
     import ElektroMat.Forklaringssystem.*
 
     % FORSINKELSESREGEL_MED_FORKLARING Forklarer forsinkelsesreglen (Second Shift Theorem)
     %
     % Syntax:
-    %   [F, forklaringsOutput] = ElektroMatBibTrinvis.forsinkelsesRegel_med_forklaring(f_expr, t0, t, s)
+    %   [F, forklaringsOutput] = ElektroMatBibTrinvis.forsinkelsesRegelMedForklaring(f_expr, t0, t, s)
     %
     % Input:
     %   f_expr - oprindelig funktion som symbolsk udtryk
