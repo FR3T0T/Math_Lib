@@ -17,10 +17,10 @@ function [f, forklaringsOutput] = inversLaplaceMedForklaring(F, s, t)
     %   forklaringsOutput - Struktur med forklaringstrin
     
     % Starter forklaring
-    forklaringsOutput = ElektroMatBibTrinvis.startForklaring('Invers Laplacetransformation');
+    forklaringsOutput = ElektroMat.Forklaringssystem.startForklaring('Invers Laplacetransformation');
     
     % Vis den oprindelige funktion
-    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, 1, ...
+    forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 1, ...
         'Identificer den oprindelige funktion', ...
         'Vi starter med at identificere Laplace-transformationen, som skal konverteres tilbage til tidsdomænet.', ...
         ['F(s) = ' char(F)]);
@@ -44,7 +44,7 @@ function [f, forklaringsOutput] = inversLaplaceMedForklaring(F, s, t)
             % For alle andre tilfælde - beregn og brug generel forklaring
             f = ilaplace(F, s, t); % Brug MATLABs indbyggede funktion direkte
             forklaringsOutput = ElektroMatBibTrinvis.forklarInversGenerel(F, s, t, forklaringsOutput);
-            forklaringsOutput = ElektroMatBibTrinvis.afslutForklaring(forklaringsOutput, ['f(t) = ' char(f)]);
+            forklaringsOutput = ElektroMat.Forklaringssystem.afslutForklaring(forklaringsOutput, ['f(t) = ' char(f)]);
             return;
     end
     
@@ -53,11 +53,11 @@ function [f, forklaringsOutput] = inversLaplaceMedForklaring(F, s, t)
     f_simple = simplify(f_check);
     
     % Verificer resultatet
-    forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, length(forklaringsOutput.trin) + 1, ...
+    forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, length(forklaringsOutput.trin) + 1, ...
         'Verificer resultatet', ...
         'Vi kan verificere resultatet ved at sammenligne med MATLAB''s symbolske beregning.', ...
         ['L^(-1){F(s)} = ' char(f_simple)]);
     
     % Afslut forklaringen
-    forklaringsOutput = ElektroMatBibTrinvis.afslutForklaring(forklaringsOutput, f);
+    forklaringsOutput = ElektroMat.Forklaringssystem.afslutForklaring(forklaringsOutput, f);
 end

@@ -6,7 +6,7 @@ function forklaringsOutput = tilfoejTrin(forklaringsOutput, trinNummer, trinTite
     % TILFØJTRIN Tilføjer et forklaringstrin til forklaringsoutputtet
     %
     % Syntax:
-    %   forklaringsOutput = ElektroMatBibTrinvis.tilfoejTrin(forklaringsOutput, trinNummer, trinTitel, trinTekst, formel)
+    %   forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, trinNummer, trinTitel, trinTekst, formel)
     %
     % Input:
     %   forklaringsOutput - Forklaringsoutput-struktur

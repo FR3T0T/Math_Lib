@@ -6,7 +6,7 @@ function forklaringsOutput = startForklaring(titel)
     % STARTFORKLARING Initialiserer et nyt forklaringsoutput-objekt
     %
     % Syntax:
-    %   forklaringsOutput = ElektroMatBibTrinvis.startForklaring(titel)
+    %   forklaringsOutput = ElektroMat.Forklaringssystem.startForklaring(titel)
     %
     % Input:
     %   titel - Titel på forklaringen
