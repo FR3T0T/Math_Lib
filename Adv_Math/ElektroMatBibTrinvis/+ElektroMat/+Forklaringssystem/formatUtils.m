@@ -84,11 +84,11 @@ classdef formatUtils
             formateret_tekst = strrep(formateret_tekst, ' * ', ' \cdot ');
             
             % ================ EFTERBEHANDLING ================
-            % Fjern dobbelte backslash
-            formateret_tekst = strrep(formateret_tekst, '\\', '\');
-            
-            % Konverter tilbage til dobbelte backslash for korrekt LaTeX visning
-            formateret_tekst = strrep(formateret_tekst, '\', '\\');
+            % Håndter typiske LaTeX-kommandoer direkte
+            formateret_tekst = strrep(formateret_tekst, '\\sum', '\sum');
+            formateret_tekst = strrep(formateret_tekst, '\\int', '\int');
+            formateret_tekst = strrep(formateret_tekst, '\\cdot', '\cdot');
+            formateret_tekst = strrep(formateret_tekst, '\\text', '\text');
         end
         
         function visFormula(formula_text)
@@ -103,6 +103,62 @@ classdef formatUtils
             catch e
                 % Hvis displayFormula ikke findes, brug disp
                 disp(['LaTeX: ' formula_text]);
+            end
+        end
+        
+        function str = formatNumber(num)
+            % FORMATNUMBER Formaterer et tal til et pænt LaTeX-kompatibelt format
+            %
+            % Syntax:
+            %   str = formatUtils.formatNumber(num)
+            %
+            % Input:
+            %   num - Tal, der skal formateres
+            %
+            % Output:
+            %   str - Formateret talstreng klar til LaTeX
+            
+            % Kontrollér om tallet er komplekst
+            if ~isreal(num)
+                re = real(num);
+                im = imag(num);
+                
+                % Formatér reel og imaginær del separat
+                re_str = formatUtils.formatNumber(re);
+                im_str = formatUtils.formatNumber(abs(im));
+                
+                % Sammensæt streng med korrekt fortegn
+                if im > 0
+                    str = [re_str ' + ' im_str 'i'];
+                else
+                    str = [re_str ' - ' im_str 'i'];
+                end
+                return;
+            end
+            
+            % For meget små tal, bare vis 0
+            if abs(num) < 1e-10
+                str = '0';
+                return;
+            end
+            
+            % Håndter forskellige talstørrelser 
+            if abs(num) >= 1000 || abs(num) < 0.01
+                % Brug videnskabelig notation for meget store eller små tal
+                str = sprintf('%.4e', num);
+            else
+                % Brug fast notation med passende antal decimaler
+                if abs(num - round(num)) < 1e-10
+                    % Heltal
+                    str = sprintf('%d', round(num));
+                else
+                    % Decimaltal med 4 decimaler
+                    str = sprintf('%.4f', num);
+                    % Fjern efterstillede nuller
+                    str = regexprep(str, '0+$', '');
+                    % Fjern punktum hvis der ikke er decimaler tilbage
+                    str = regexprep(str, '\.$', '');
+                end
             end
         end
     end

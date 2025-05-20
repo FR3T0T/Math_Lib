@@ -27,23 +27,21 @@ function forklaringsOutput = tilfoejTrin(forklaringsOutput, trinNummer, trinTite
     disp(['TRIN ' num2str(trinNummer) ': ' trinTitel]);
     disp(trinTekst);
     
-    % Formatér matematiske formler med LaTeX 
-    % Relevante dele for visning af formler:
+    % Vis formlen direkte
     if ~isempty(formel)
         % Del formelen op i linjer hvis den indeholder newlines
         formel_linjer = strsplit(formel, '\n');
+        
         for i = 1:length(formel_linjer)
-            % Konverter til LaTeX
-            latex_formel = formatUtils.konverterTilLatex(formel_linjer{i});
-            
-            % Brug displayFormula - indbygget i Live Script (INGEN popup-vinduer!)
-            try
-                displayFormula(latex_formel);
-            catch
-                % Fallback til almindelig tekst hvis displayFormula ikke findes
-                disp(['   ' formel_linjer{i}]);
+            % Hvis linjen er tom, spring over
+            if isempty(formel_linjer{i})
+                continue;
             end
+            
+            % Ren matematikvisning - brug disp
+            disp(['   ' formel_linjer{i}]);
         end
     end
+    
     disp(' ');
 end

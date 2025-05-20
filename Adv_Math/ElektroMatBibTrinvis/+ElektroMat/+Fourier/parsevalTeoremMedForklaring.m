@@ -1,7 +1,4 @@
 function [P, forklaringsOutput] = parsevalTeoremMedForklaring(cn, N)
-    % Import forklaringssystem functions
-    import ElektroMat.Forklaringssystem.*
-
     % PARSEVALTEOREM_MED_FORKLARING Forklarer Parsevals teorem og beregner signalets effekt
     %
     % Syntax:
@@ -15,18 +12,23 @@ function [P, forklaringsOutput] = parsevalTeoremMedForklaring(cn, N)
     %   P - signalets middeleffekt
     %   forklaringsOutput - Struktur med forklaringstrin
     
+    % Import forklaringssystem functions
+    import ElektroMat.Forklaringssystem.*
+
     % Starter forklaring
     forklaringsOutput = startForklaring('Parsevals Teorem');
     
+    % Trin 1: Definér Parsevals teorem
     forklaringsOutput = tilfoejTrin(forklaringsOutput, 1, ...
         'Definér Parsevals teorem', ...
-        ['Parsevals teorem forbinder effekten beregnet i tidsdomænet med Fourierkoefficienterne:'], ...
-        ['(1/T) \\cdot \\int |f(t)|^2 dt = |c_0|^2 + \\sum_{n=-\\infty}^{\\infty} |c_n|^2, \\, n \\neq 0']);
+        'Parsevals teorem forbinder effekten beregnet i tidsdomænet med Fourierkoefficienterne:', ...
+        '(1/T) \\cdot \\int |f(t)|^2 dt = |c_0|^2 + \\sum_{n=-\\infty}^{\\infty} |c_n|^2, \\, n \\neq 0');
     
+    % Trin 2: Fortolk Parsevals teorem
     forklaringsOutput = tilfoejTrin(forklaringsOutput, 2, ...
         'Fortolk Parsevals teorem', ...
-        ['Teoremet viser, at middeleffekten af et periodisk signal kan beregnes ved at summere kvadraterne af amplituderne af alle frekvenskomponenter.'], ...
-        ['Dette gør det muligt at analysere signalets effektfordeling over forskellige frekvenser.']);
+        'Teoremet viser, at middeleffekten af et periodisk signal kan beregnes ved at summere kvadraterne af amplituderne af alle frekvenskomponenter.', ...
+        'Dette gør det muligt at analysere signalets effektfordeling over forskellige frekvenser.');
     
     % Beregn effekten
     c0_squared = 0;
@@ -34,82 +36,97 @@ function [P, forklaringsOutput] = parsevalTeoremMedForklaring(cn, N)
         c0_squared = abs(cn.c0)^2;
     end
     
-    % Formatér med LaTeX-notationen
-    c0_format = formatUtils.formatNumber(c0_squared);
-    power_text = ['|c_0|^2 = ' c0_format];
-    power_sum = c0_squared;
+    % Total effekt starter med DC
+    P = c0_squared;
     
+    % Opbyg teksten for effektbidrag
+    bidrag_text = ['|c_0|^2 = ' num2str(c0_squared)];
+    
+    % For hvert frekvenspar, beregn effektbidraget
     for k = 1:N
-        pos_term = 0;
-        neg_term = 0;
+        pos_power = 0;
+        neg_power = 0;
         
-        if isfield(cn, sprintf('c%d', k))
-            pos_term = abs(cn.(sprintf('c%d', k)))^2;
-            power_sum = power_sum + pos_term;
+        % Tjek positive frekvenser
+        field_pos = ['c' num2str(k)];
+        if isfield(cn, field_pos)
+            pos_power = abs(cn.(field_pos))^2;
+            P = P + pos_power;
         end
         
-        if isfield(cn, sprintf('cm%d', k))
-            neg_term = abs(cn.(sprintf('cm%d', k)))^2;
-            power_sum = power_sum + neg_term;
+        % Tjek negative frekvenser
+        field_neg = ['cm' num2str(k)];
+        if isfield(cn, field_neg)
+            neg_power = abs(cn.(field_neg))^2;
+            P = P + neg_power;
         end
         
-        pos_term_format = formatUtils.formatNumber(pos_term);
-        neg_term_format = formatUtils.formatNumber(neg_term);
-        sum_format = formatUtils.formatNumber(neg_term + pos_term);
-        
-        power_text = [power_text '\n|c_{-' num2str(k) '}|^2 + |c_' num2str(k) '}|^2 = ' neg_term_format ' + ' pos_term_format ' = ' sum_format];
+        % Tilføj bidrag til teksten hvis mindst én er ikke-nul
+        if pos_power > 0 || neg_power > 0
+            bidrag_linje = sprintf('|c_{-%d}|^2 + |c_{%d}|^2 = %g + %g = %g', ...
+                k, k, neg_power, pos_power, neg_power + pos_power);
+            bidrag_text = [bidrag_text '\n' bidrag_linje];
+        end
     end
     
+    % Trin 3: Vis detaljerede effektbidrag
     forklaringsOutput = tilfoejTrin(forklaringsOutput, 3, ...
         'Beregn effektbidrag fra hver frekvenskomponent', ...
-        ['Vi beregner effektbidraget fra hver enkelt frekvenskomponent:'], ...
-        power_text);
+        'Vi beregner effektbidraget fra hver enkelt frekvenskomponent:', ...
+        bidrag_text);
     
-    power_sum_format = formatUtils.formatNumber(power_sum);
+    % Trin 4: Vis samlet effekt
     forklaringsOutput = tilfoejTrin(forklaringsOutput, 4, ...
         'Summér effekter', ...
-        ['Den samlede middeleffekt er summen af alle effektbidrag:'], ...
-        ['P = ' power_sum_format]);
+        'Den samlede middeleffekt er summen af alle effektbidrag:', ...
+        ['P = ' num2str(P)]);
     
-    % Beregn relativ effektfordeling
-    if power_sum > 0
-        dc_percent = 100*c0_squared/power_sum;
-        dc_percent_format = formatUtils.formatNumber(dc_percent);
+    % Vis effekt direkte for at sikre korrekt visning
+    disp(' ');
+    disp(['P = ' num2str(P)]);
+    disp(' ');
+    
+    % Beregn relativ effektfordeling hvis relevant
+    if P > 0 && c0_squared > 0
+        dc_percent = 100 * c0_squared / P;
         
         forklaringsOutput = tilfoejTrin(forklaringsOutput, 5, ...
             'Beregn relativ effektfordeling', ...
-            ['Vi kan også beregne, hvor meget hver frekvenskomponent bidrager til den samlede effekt:'], ...
-            ['\\text{DC-komponent } (c_0): ' dc_percent_format '\\%']);
+            'Vi kan også beregne, hvor meget hver frekvenskomponent bidrager til den samlede effekt:', ...
+            ['DC-komponent (c_0): ' num2str(dc_percent, '%.2f') '%']);
     end
     
-    % Resultat
-    P = power_sum;
-    
-    % Afslut
+    % Afslut forklaring
     forklaringsOutput = afslutForklaring(forklaringsOutput, ...
-        ['\\text{Middeleffekten er } P = ' power_sum_format]);
+        ['Middeleffekten er P = ' num2str(P)]);
     
-    % Visualiser effektspektrum
-    figure;
-    
-    % Forbered data til plot
-    n_values = -N:N;
-    power_values = zeros(size(n_values));
-    
-    for i = 1:length(n_values)
-        if n_values(i) == 0 && isfield(cn, 'c0')
-            power_values(i) = abs(cn.c0)^2;
-        elseif n_values(i) > 0 && isfield(cn, sprintf('c%d', n_values(i)))
-            power_values(i) = abs(cn.(sprintf('c%d', n_values(i))))^2;
-        elseif n_values(i) < 0 && isfield(cn, sprintf('cm%d', abs(n_values(i))))
-            power_values(i) = abs(cn.(sprintf('cm%d', abs(n_values(i)))))^2;
+    % Tilføj visualisering
+    try
+        figure;
+        
+        % Forbered data til plot
+        n_values = -N:N;
+        power_values = zeros(size(n_values));
+        
+        % Fyld værdier ind
+        for i = 1:length(n_values)
+            n = n_values(i);
+            if n == 0 && isfield(cn, 'c0')
+                power_values(i) = abs(cn.c0)^2;
+            elseif n > 0 && isfield(cn, ['c' num2str(n)])
+                power_values(i) = abs(cn.(['c' num2str(n)]))^2;
+            elseif n < 0 && isfield(cn, ['cm' num2str(abs(n))])
+                power_values(i) = abs(cn.(['cm' num2str(abs(n))]))^2;
+            end
         end
+        
+        % Plot effektspektrum med LaTeX-formatering
+        stem(n_values, power_values, 'filled', 'LineWidth', 2);
+        grid on;
+        title('Effektspektrum |c_n|^2', 'Interpreter', 'tex');
+        xlabel('n');
+        ylabel('|c_n|^2');
+    catch
+        % Ignorér eventuelle plot-fejl
     end
-    
-    % Plot effektspektrum med LaTeX-formatering
-    stem(n_values, power_values, 'filled', 'LineWidth', 2);
-    grid on;
-    title('Effektspektrum $|c_n|^2$', 'Interpreter', 'latex', 'FontSize', 14);
-    xlabel('$n$', 'Interpreter', 'latex', 'FontSize', 12);
-    ylabel('$|c_n|^2$', 'Interpreter', 'latex', 'FontSize', 12);
 end
