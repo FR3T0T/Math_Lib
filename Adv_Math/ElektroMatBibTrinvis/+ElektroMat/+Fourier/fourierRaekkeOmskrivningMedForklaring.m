@@ -302,9 +302,12 @@ function [series_trig, forklaringsOutput] = fourierRaekkeOmskrivningMedForklarin
             if contains(pattern, '1/n')
                 % Tilfælde for 1/n-type mønstre, typisk for firkantsignaler
                 if contains(pattern, '4/pi')
-                    sin_series = sym('(4/pi)*symsum(1/(2*k-1)*sin((2*k-1)*pi*t), k, 1, inf)');
+                    % Her retter vi fejlen i linjen nedenfor
+                    syms k
+                    sin_series = (4/pi)*symsum(1/(2*k-1)*sin((2*k-1)*pi*t), k, 1, inf);
                 elseif contains(pattern, '2/pi')
-                    sin_series = sym('(2/pi)*symsum(1/(2*k-1)*sin((2*k-1)*pi*t), k, 1, inf)');
+                    syms k
+                    sin_series = (2/pi)*symsum(1/(2*k-1)*sin((2*k-1)*pi*t), k, 1, inf);
                 end
                 
                 forklaringsOutput = tilfoejTrin(forklaringsOutput, 10, ...
