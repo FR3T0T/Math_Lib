@@ -198,6 +198,9 @@ classdef ElektroMatBibTrinvis
         function [F, forklaringsOutput] = forsinkelsesRegelMedForklaring(f_expr, t0, t, s)
             [F, forklaringsOutput] = ElektroMat.SpecielleFunktioner.forsinkelsesRegelMedForklaring(f_expr, t0, t, s);
         end
+        function [f_t, forklaringsOutput] = stykkevisFunktionMedForklaring(func_liste, graenser, t)
+            [f_t, forklaringsOutput] = ElektroMat.SpecielleFunktioner.stykkevisFunktionMedForklaring(func_liste, graenser, t);
+        end
         
         %% FOURIERRÆKKE FUNKTIONER %%
         function [cn, forklaringsOutput] = fourierKoefficienterMedForklaring(f, t, T)

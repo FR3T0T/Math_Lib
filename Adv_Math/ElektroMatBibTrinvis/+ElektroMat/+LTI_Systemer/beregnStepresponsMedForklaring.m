@@ -44,6 +44,12 @@ function [t, y, forklaringsOutput] = beregnStepresponsMedForklaring(num, den, t_
         'For at finde tidsresponsen skal vi transformere tilbage til tidsdomænet.', ...
         'y(t) = L^(-1){Y(s)} = L^(-1){H(s) · (1/s)}');
     
+    % TILFØJET: Bemærk om kausalitet
+    forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 4.5, ...
+        'Bemærk om kausalitet', ...
+        'Stepresponset er pr. definition kausalt og er kun defineret for t ≥ 0.', ...
+        'g(t) = L^(-1){H(s)/s} · u(t)');
+    
     % Beregn steprespons ved hjælp af MATLAB-funktioner
     sys = tf(num, den);
     [y, t] = step(sys, t_range);
@@ -113,7 +119,7 @@ function [t, y, forklaringsOutput] = beregnStepresponsMedForklaring(num, den, t_
     
     % Afslut forklaring
     forklaringsOutput = ElektroMat.Forklaringssystem.afslutForklaring(forklaringsOutput, ...
-        'Stepresponsen er nu beregnet og analyseret.');
+        'Stepresponsen er nu beregnet og analyseret med hensyntagen til kausalitet (u(t)).');
     
     % Skab figuren
     figure;
@@ -121,7 +127,7 @@ function [t, y, forklaringsOutput] = beregnStepresponsMedForklaring(num, den, t_
     grid on;
     xlabel('Tid (sekunder)');
     ylabel('Amplitude');
-    title('Steprespons');
+    title('Steprespons (kausalt system)');
     
     % Tilmarker nøglekarakteristika på plottet
     hold on;

@@ -14,7 +14,7 @@ function [y, forklaringsOutput] = beregnUdgangssignalMedForklaring(H_s, X_s, s, 
     %   t - tidsvariabel (symbolsk)
     % 
     % Output:
-    %   y - udgangssignal y(t)
+    %   y - udgangssignal y(t) med kausalitetsbetingelse
     %   forklaringsOutput - Struktur med forklaringstrin
 
     % Start forklaring
@@ -82,6 +82,34 @@ function [y, forklaringsOutput] = beregnUdgangssignalMedForklaring(H_s, X_s, s, 
             inv_forklaring.trin{i}.titel, ...
             inv_forklaring.trin{i}.tekst, ...
             inv_forklaring.trin{i}.formel);
+    end
+
+    % TILFØJET: Sikre at kausalitet er inkluderet i udgangssignalet
+    % (Denne kode er kun nødvendig hvis inversLaplaceMedForklaring ikke allerede tilføjer u(t))
+    if ~has(y, 'u') && ~has(y, 'heaviside')
+        try
+            syms u;
+            y_kausal = y * u(t);
+            
+            forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, ...
+                length(forklaringsOutput.trin) + 1, ...
+                'Sikre kausalt udgangssignal', ...
+                'Vi sikrer at udgangssignalet er kausalt ved at tilføje enhedstrinfunktionen.', ...
+                ['y(t) = ' char(y_kausal)]);
+            
+            y = y_kausal;
+        catch
+            % Hvis der opstår problemer med at definere symbolsk u(t), prøv med heaviside
+            y_kausal = y * heaviside(t);
+            
+            forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, ...
+                length(forklaringsOutput.trin) + 1, ...
+                'Sikre kausalt udgangssignal', ...
+                'Vi sikrer at udgangssignalet er kausalt ved at tilføje enhedstrinfunktionen.', ...
+                ['y(t) = ' char(y_kausal)]);
+            
+            y = y_kausal;
+        end
     end
 
     % Afslut forklaringen
