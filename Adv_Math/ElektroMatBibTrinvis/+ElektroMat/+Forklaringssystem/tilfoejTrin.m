@@ -27,7 +27,7 @@ function forklaringsOutput = tilfoejTrin(forklaringsOutput, trinNummer, trinTite
     disp(['TRIN ' num2str(trinNummer) ': ' trinTitel]);
     disp(trinTekst);
     
-    % Formatér matematiske formler med LaTeX for pænere display i Live Scripts
+    % Formatér matematiske formler med LaTeX 
     if ~isempty(formel)
         % Konverter almindelig notation til LaTeX
         latex_formel = formel;
@@ -47,8 +47,13 @@ function forklaringsOutput = tilfoejTrin(forklaringsOutput, trinNummer, trinTite
         % Del formelen op i linjer hvis den indeholder newlines
         formel_linjer = strsplit(latex_formel, '\n');
         for i = 1:length(formel_linjer)
-            % Vis formelen med LaTeX formatering
-            disp(['   $' formel_linjer{i} '$']);
+            % ÆNDRET: Brug displayFormula i stedet for disp
+            try
+                displayFormula(formel_linjer{i});
+            catch
+                % Fallback til disp hvis displayFormula ikke er tilgængelig
+                disp(['   ' formel_linjer{i}]);
+            end
         end
     end
     disp(' ');

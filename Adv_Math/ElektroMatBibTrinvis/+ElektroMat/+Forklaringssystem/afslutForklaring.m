@@ -39,7 +39,13 @@ function forklaringsOutput = afslutForklaring(forklaringsOutput, resultat)
     % Vis resultat
     disp('RESULTAT:');
     for i = 1:length(resultat_linjer)
-        disp(['   $' resultat_linjer{i} '$']);
+        % ÆNDRET: Brug displayFormula i stedet for disp
+        try
+            displayFormula(resultat_linjer{i});
+        catch
+            % Fallback til disp hvis displayFormula ikke er tilgængelig
+            disp(['   ' resultat_linjer{i}]);
+        end
     end
     disp(' ');
     disp(['===== AFSLUTTET: ' upper(forklaringsOutput.titel) ' =====']);
