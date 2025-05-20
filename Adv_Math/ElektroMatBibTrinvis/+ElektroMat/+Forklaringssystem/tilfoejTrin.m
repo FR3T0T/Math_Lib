@@ -28,30 +28,19 @@ function forklaringsOutput = tilfoejTrin(forklaringsOutput, trinNummer, trinTite
     disp(trinTekst);
     
     % Formatér matematiske formler med LaTeX 
+    % Relevante dele for visning af formler:
     if ~isempty(formel)
-        % Konverter almindelig notation til LaTeX
-        latex_formel = formel;
-        latex_formel = strrep(latex_formel, 'sum_', '\sum_');
-        latex_formel = strrep(latex_formel, 'int_', '\int_');
-        latex_formel = strrep(latex_formel, 'omega_0', '\omega_0');
-        latex_formel = strrep(latex_formel, 'pi', '\pi');
-        latex_formel = strrep(latex_formel, 'delta', '\delta');
-        latex_formel = strrep(latex_formel, '{-oo}', '{-\infty}');
-        latex_formel = strrep(latex_formel, '{oo}', '{\infty}');
-        latex_formel = strrep(latex_formel, 'e^(j', 'e^{j');
-        latex_formel = strrep(latex_formel, 'e^(-j', 'e^{-j');
-        latex_formel = strrep(latex_formel, ' t)', ' t}');
-        latex_formel = strrep(latex_formel, '^n', '^{n}');
-        latex_formel = strrep(latex_formel, '_n', '_{n}');
-        
         % Del formelen op i linjer hvis den indeholder newlines
-        formel_linjer = strsplit(latex_formel, '\n');
+        formel_linjer = strsplit(formel, '\n');
         for i = 1:length(formel_linjer)
-            % ÆNDRET: Brug displayFormula i stedet for disp
+            % Konverter til LaTeX
+            latex_formel = formatUtils.konverterTilLatex(formel_linjer{i});
+            
+            % Brug displayFormula - indbygget i Live Script (INGEN popup-vinduer!)
             try
-                displayFormula(formel_linjer{i});
+                displayFormula(latex_formel);
             catch
-                % Fallback til disp hvis displayFormula ikke er tilgængelig
+                % Fallback til almindelig tekst hvis displayFormula ikke findes
                 disp(['   ' formel_linjer{i}]);
             end
         end
