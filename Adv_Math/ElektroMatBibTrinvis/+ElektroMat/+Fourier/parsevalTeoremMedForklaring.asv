@@ -1,0 +1,130 @@
+function [P, forklaringsOutput] = parsevalTeoremMedForklaring(cn, N)
+    % Import forklaringssystem functions
+    import ElektroMat.Forklaringssystem.*
+
+    % PARSEVALTEOREM_MED_FORKLARING Forklarer Parsevals teorem og beregner signalets effekt
+    %
+    % Syntax:
+    %   [P, forklaringsOutput] = ElektroMatBibTrinvis.parsevalTeoremMedForklaring(cn, N)
+    %
+    % Input:
+    %   cn - struktur med Fourierkoefficienter
+    %   N - maksimalt indekstal for koefficienterne
+    % 
+    % Output:
+    %   P - signalets middeleffekt
+    %   forklaringsOutput - Struktur med forklaringstrin
+    
+    % Starter forklaring
+    forklaringsOutput = startForklaring('Parsevals Teorem');
+    
+    % Definer Parsevals teorem (symbolsk repræsentation vil automatisk blive pæn)
+    syms T f(t) c0 cn n;
+    parsevals_theorem = sym('(1/T)*int(abs(f(t))^2, t, 0, T) = abs(c0)^2 + sum(abs(cn)^2)');
+    
+    forklaringsOutput = tilfoejTrin(forklaringsOutput, 1, ...
+        'Definér Parsevals teorem', ...
+        'Parsevals teorem forbinder effekten beregnet i tidsdomænet med Fourierkoefficienterne:', ...
+        parsevals_theorem);
+    
+    forklaringsOutput = tilfoejTrin(forklaringsOutput, 2, ...
+        'Fortolk Parsevals teorem', ...
+        'Teoremet viser, at middeleffekten af et periodisk signal kan beregnes ved at summere kvadraterne af amplituderne af alle frekvenskomponenter.', ...
+        'Dette gør det muligt at analysere signalets effektfordeling over forskellige frekvenser.');
+    
+    % Beregn effekten
+    c0_squared = sym(0);
+    if isfield(cn, 'c0')
+        c0_squared = sym(abs(cn.c0)^2);
+    end
+    
+    power_sum = c0_squared;
+    
+    % Samlet streng for alle bidrag (vi bruger en cellearray for at undgå problemer med linjeskift)
+    power_terms = {};
+    
+    for k = 1:N
+        pos_term = sym(0);
+        neg_term = sym(0);
+        
+        if isfield(cn, sprintf('c%d', k))
+            pos_term = sym(abs(cn.(sprintf('c%d', k)))^2);
+            power_sum = power_sum + pos_term;
+        end
+        
+        if isfield(cn, sprintf('cm%d', k))
+            neg_term = sym(abs(cn.(sprintf('cm%d', k)))^2);
+            power_sum = power_sum + neg_term;
+        end
+        
+        % Tilføj bidraget hvis der er ikke-nul komponenter
+        if pos_term ~= 0 || neg_term ~= 0
+            % Opret symbolske udtryk for de enkelte komponenter og summen
+            neg_sq = sym(sprintf('abs(c_{-%d})^2', k));
+            pos_sq = sym(sprintf('abs(c_{%d})^2', k));
+            equation = sym(sprintf('%s + %s = %s', char(neg_sq), char(pos_sq), char(neg_term + pos_term)));
+            
+            % Tilføj til listen over bidrag
+            power_terms{end+1} = equation;
+        end
+    end
+    
+    % Tilføj hvert bidrag som et separat trin for pænere formatering
+    for i = 1:length(power_terms)
+        forklaringsOutput = tilfoejTrin(forklaringsOutput, 3, ...
+            'Beregn effektbidrag fra hver frekvenskomponent', ...
+            sprintf('Effektbidrag fra frekvenskomponent %d:', i), ...
+            power_terms{i});
+    end
+    
+    % Total effekt
+    P_result = sym(sprintf('P = %s', char(power_sum)));
+    
+    forklaringsOutput = tilfoejTrin(forklaringsOutput, 4, ...
+        'Summér effekter', ...
+        'Den samlede middeleffekt er summen af alle effektbidrag:', ...
+        P_result);
+    
+    % Beregn relativ effektfordeling med symbolske tal
+    if power_sum ~= 0
+        dc_percentage = sym(100*c0_squared/power_sum);
+        dc_result = sym(sprintf('DC-komponent (c0) = %s%%', char(dc_percentage)));
+        
+        forklaringsOutput = tilfoejTrin(forklaringsOutput, 5, ...
+            'Beregn relativ effektfordeling', ...
+            'Vi kan også beregne, hvor meget hver frekvenskomponent bidrager til den samlede effekt:', ...
+            dc_result);
+    end
+    
+    % Resultat
+    P = double(power_sum); % Konvertér til double for andre beregninger
+    
+    % Afslut med pænt formateret resultat
+    result = sym(sprintf('P = %s', char(power_sum)));
+    
+    forklaringsOutput = afslutForklaring(forklaringsOutput, result);
+    
+    % Visualiser effektspektrum
+    figure;
+    
+    % Forbered data til plot
+    n_values = -N:N;
+    power_values = zeros(size(n_values));
+    
+    for i = 1:length(n_values)
+        if n_values(i) == 0 && isfield(cn, 'c0')
+            power_values(i) = abs(cn.c0)^2;
+        elseif n_values(i) > 0 && isfield(cn, sprintf('c%d', n_values(i)))
+            power_values(i) = abs(cn.(sprintf('c%d', n_values(i))))^2;
+        elseif n_values(i) < 0 && isfield(cn, sprintf('cm%d', abs(n_values(i))))
+            power_values(i) = abs(cn.(sprintf('cm%d', abs(n_values(i)))))^2;
+        end
+    end
+    
+    % Plot effektspektrum
+    stem(n_values, power_values, 'filled', 'LineWidth', 2);
+    grid on;
+    title('Effektspektrum |c_n|^2');
+    xlabel('n');
+    ylabel('|c_n|^2');
+end

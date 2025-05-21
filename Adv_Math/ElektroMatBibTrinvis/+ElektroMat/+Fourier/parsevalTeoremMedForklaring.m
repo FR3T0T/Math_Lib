@@ -1,12 +1,9 @@
 function [P, forklaringsOutput] = parsevalTeoremMedForklaring(cn, N)
-    % Import forklaringssystem functions
-    import ElektroMat.Forklaringssystem.*
-
     % PARSEVALTEOREM_MED_FORKLARING Forklarer Parsevals teorem og beregner signalets effekt
-    % med symbolsk formatering
+    % med ægte symbolsk formatering
     %
     % Syntax:
-    %   [P, forklaringsOutput] = ElektroMatBibTrinvis.parsevalTeoremMedForklaring(cn, N)
+    %   [P, forklaringsOutput] = parsevalTeoremMedForklaring(cn, N)
     %
     % Input:
     %   cn - struktur med Fourierkoefficienter
@@ -14,26 +11,41 @@ function [P, forklaringsOutput] = parsevalTeoremMedForklaring(cn, N)
     % 
     % Output:
     %   P - signalets middeleffekt
-    %   forklaringsOutput - Struktur med forklaringstrin
+    %   forklaringsOutput - Struktur med grundlæggende information (for kompatibilitet)
     
-    % Starter forklaring
-    forklaringsOutput = startForklaring('Parsevals Teorem');
+    % Simpel output struktur for kompatibilitet
+    forklaringsOutput = struct('titel', 'Parsevals Teorem', 'trin', {}, 'resultat', '');
     
-    % Opret symbolske variabler til forklaring
-    syms t T n;
+    % Vis titel
+    disp('');
+    disp('===== PARSEVALS TEOREM =====');
+    disp('');
     
-    % Definer Parsevals teorem med symbolsk notation
-    parsevals_eq = sym('(1/T)*int(abs(f(t))^2, t, 0, T) = abs(c_0)^2 + sum(abs(c_n)^2, n, -inf, inf, n ~= 0)');
+    % Opret symbolske variabler
+    syms T t f(t) c0 cn n
     
-    forklaringsOutput = tilfoejTrin(forklaringsOutput, 1, ...
-        'Definér Parsevals teorem', ...
-        ['Parsevals teorem forbinder effekten beregnet i tidsdomænet med Fourierkoefficienterne:'], ...
-        parsevals_eq);
+    % Trin 1: Opbyg Parsevals teorem med symbolske operationer (IKKE strenge)
+    disp('TRIN 1: Definér Parsevals teorem');
+    disp('Parsevals teorem forbinder effekten beregnet i tidsdomænet med Fourierkoefficienterne:');
     
-    forklaringsOutput = tilfoejTrin(forklaringsOutput, 2, ...
-        'Fortolk Parsevals teorem', ...
-        ['Teoremet viser, at middeleffekten af et periodisk signal kan beregnes ved at summere kvadraterne af amplituderne af alle frekvenskomponenter.'], ...
-        ['Dette gør det muligt at analysere signalets effektfordeling over forskellige frekvenser.']);
+    lhs = (1/T) * int(abs(f(t))^2, t, 0, T);
+    rhs = abs(c0)^2 + symsum(abs(cn)^2, n, 1, inf);
+    eq = lhs == rhs;
+    
+    % Vis det symbolske udtryk
+    disp(eq);
+    disp(' ');
+    
+    % Trin 2: Fortolkning
+    disp('TRIN 2: Fortolk Parsevals teorem');
+    disp('Teoremet viser, at middeleffekten af et periodisk signal kan beregnes ved at summere');
+    disp('kvadraterne af amplituderne af alle frekvenskomponenter.');
+    disp('Dette gør det muligt at analysere signalets effektfordeling over forskellige frekvenser.');
+    disp(' ');
+    
+    % Trin 3: Beregn effektbidrag
+    disp('TRIN 3: Beregn effektbidrag fra hver frekvenskomponent');
+    disp('Vi beregner effektbidraget fra hver enkelt frekvenskomponent:');
     
     % Beregn effekten
     c0_squared = 0;
@@ -41,13 +53,17 @@ function [P, forklaringsOutput] = parsevalTeoremMedForklaring(cn, N)
         c0_squared = abs(cn.c0)^2;
     end
     
-    % Opret symbolske udtryk for power_sum
-    power_text = sym(['abs(c_0)^2 = ' num2str(c0_squared, '%.6f')]);
     power_sum = c0_squared;
     
-    % Opsaml bidrag fra hver frekvenskomponent med symbolske udtryk
-    power_terms = sym('0');
+    % Vis DC-bidrag hvis det ikke er nul
+    if c0_squared > 0
+        % Create symbolske variabler for DC-komponenten
+        c_0 = sym('c_0');
+        dc_eq = abs(c_0)^2 == c0_squared;
+        disp(dc_eq);
+    end
     
+    % Behandl hvert frekvenspar
     for k = 1:N
         pos_term = 0;
         neg_term = 0;
@@ -62,48 +78,56 @@ function [P, forklaringsOutput] = parsevalTeoremMedForklaring(cn, N)
             power_sum = power_sum + neg_term;
         end
         
-        % Opbyg symbolsk sum
+        % Vis bidraget hvis mindst én term er ikke-nul
         if pos_term > 0 || neg_term > 0
-            term_sym = sym(['abs(c_{-' num2str(k) '})^2 + abs(c_' num2str(k) ')^2 = ' ...
-                       num2str(neg_term, '%.6f') ' + ' num2str(pos_term, '%.6f') ...
-                       ' = ' num2str(neg_term + pos_term, '%.6f')]);
+            % For at undgå fejl med ikke-variable symboler, opret symbolske variable
+            % med hvert indeks og lad matricen håndtere visningen
+            c_neg_k = sym(['c_neg_' num2str(k)]);
+            c_pos_k = sym(['c_pos_' num2str(k)]);
             
-            power_terms = [power_terms; term_sym];
+            % Opret ligningen direkte med reelle tal
+            % Opbyg en mere beskrivende forklaring ved hver komponent
+            term_sum = neg_term + pos_term;
+            disp(['|c_{-' num2str(k) '}|² + |c_{' num2str(k) '}|² = ' num2str(neg_term) ' + ' num2str(pos_term) ' = ' num2str(term_sum)]);
         end
     end
+    disp(' ');
     
-    % Vis effektbidrag med symbolsk formatering
-    forklaringsOutput = tilfoejTrin(forklaringsOutput, 3, ...
-        'Beregn effektbidrag fra hver frekvenskomponent', ...
-        ['Vi beregner effektbidraget fra hver enkelt frekvenskomponent:'], ...
-        power_terms);
+    % Trin 4: Summér effekter
+    disp('TRIN 4: Summér effekter');
+    disp('Den samlede middeleffekt er summen af alle effektbidrag:');
     
-    % Trin 4: Summér effekter med symbolsk formatering
-    power_sum_sym = sym(['P = ' num2str(power_sum, '%.6f')]);
-    
-    forklaringsOutput = tilfoejTrin(forklaringsOutput, 4, ...
-        'Summér effekter', ...
-        ['Den samlede middeleffekt er summen af alle effektbidrag:'], ...
-        power_sum_sym);
+    % Brug symbolsk Power variabel til at vise resultatet
+    P_sym = sym('P');  
+    P_eq = P_sym == power_sum;
+    disp(P_eq);
+    disp(' ');
     
     % Trin 5: Beregn relativ effektfordeling
     if power_sum > 0
-        dc_percentage = 100*c0_squared/power_sum;
-        dc_percentage_sym = sym(['DC-komponent (c_0): ' num2str(dc_percentage, '%.2f') '%']);
+        disp('TRIN 5: Beregn relativ effektfordeling');
+        disp('Vi kan også beregne, hvor meget hver frekvenskomponent bidrager til den samlede effekt:');
         
-        forklaringsOutput = tilfoejTrin(forklaringsOutput, 5, ...
-            'Beregn relativ effektfordeling', ...
-            ['Vi kan også beregne, hvor meget hver frekvenskomponent bidrager til den samlede effekt:'], ...
-            dc_percentage_sym);
+        % Beregn procentvis DC-bidrag
+        dc_percentage = 100*c0_squared/power_sum;
+        
+        % Vis som en ligning
+        DC_percent = sym('DC_{percent}');
+        dc_eq = DC_percent == dc_percentage;
+        disp(['DC-komponent (c₀): ' num2str(dc_percentage) '%']);
+        disp(' ');
     end
     
     % Resultat
     P = power_sum;
     
-    % Afslut med et symbolsk resultat
-    result_sym = sym(['P = ' num2str(P, '%.6f')]);
-    
-    forklaringsOutput = afslutForklaring(forklaringsOutput, result_sym);
+    % Afslutning
+    disp('RESULTAT:');
+    result_eq = sym('P') == P;
+    disp(result_eq);
+    disp(' ');
+    disp('===== AFSLUTTET: PARSEVALS TEOREM =====');
+    disp(' ');
     
     % Visualiser effektspektrum
     figure;
@@ -128,4 +152,43 @@ function [P, forklaringsOutput] = parsevalTeoremMedForklaring(cn, N)
     title('Effektspektrum |c_n|^2');
     xlabel('n');
     ylabel('|c_n|^2');
+    
+    % For bedre visuel forståelse: Beregn total effekt for hvert indeks (f.eks. n=±1, n=±2, osv.)
+    % og vis som procentbidrag
+    if power_sum > 0
+        % Beregn bidrag per frekvensindeks
+        freq_contrib = zeros(1, N+1);  % +1 for DC-komponenten
+        freq_contrib(1) = c0_squared / power_sum * 100;  % DC-bidrag
+        
+        for k = 1:N
+            pos_term = 0;
+            neg_term = 0;
+            
+            if isfield(cn, sprintf('c%d', k))
+                pos_term = abs(cn.(sprintf('c%d', k)))^2;
+            end
+            
+            if isfield(cn, sprintf('cm%d', k))
+                neg_term = abs(cn.(sprintf('cm%d', k)))^2;
+            end
+            
+            freq_contrib(k+1) = (pos_term + neg_term) / power_sum * 100;
+        end
+        
+        % Lav et søjlediagram over effektfordeling
+        figure;
+        bar(0:N, freq_contrib, 0.6);
+        title('Effektfordeling per frekvensindeks');
+        xlabel('n (frekvensindeks)');
+        ylabel('Bidrag (%)');
+        grid on;
+        
+        % Tilføj labels over søjlerne
+        for i = 1:length(freq_contrib)
+            if freq_contrib(i) > 1  % Vis kun betydelige bidrag
+                text(i-1, freq_contrib(i) + 1, [num2str(freq_contrib(i), '%.1f') '%'], ...
+                     'HorizontalAlignment', 'center');
+            end
+        end
+    end
 end
