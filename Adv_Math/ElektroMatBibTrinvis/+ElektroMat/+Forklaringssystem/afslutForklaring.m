@@ -18,22 +18,9 @@ function forklaringsOutput = afslutForklaring(forklaringsOutput, resultat)
         forklaringsOutput.resultat = char(resultat);
     end
     
-    % Del på linjer hvis der er \n
-    resultat_linjer = strsplit(forklaringsOutput.resultat, '\n');
-    
     % Vis resultat
     disp('RESULTAT:');
-    
-    for i = 1:length(resultat_linjer)
-        % Hvis linjen er tom, spring over
-        if isempty(resultat_linjer{i})
-            continue;
-        end
-        
-        % Brug disp direkte for ren tekst
-        disp(['   ' resultat_linjer{i}]);
-    end
-    
+    disp(['   ' forklaringsOutput.resultat]);
     disp(' ');
     disp(['===== AFSLUTTET: ' upper(forklaringsOutput.titel) ' =====']);
     disp(' ');

@@ -26,22 +26,8 @@ function forklaringsOutput = tilfoejTrin(forklaringsOutput, trinNummer, trinTite
     % Vis trin
     disp(['TRIN ' num2str(trinNummer) ': ' trinTitel]);
     disp(trinTekst);
-    
-    % Vis formlen direkte
     if ~isempty(formel)
-        % Del formelen op i linjer hvis den indeholder newlines
-        formel_linjer = strsplit(formel, '\n');
-        
-        for i = 1:length(formel_linjer)
-            % Hvis linjen er tom, spring over
-            if isempty(formel_linjer{i})
-                continue;
-            end
-            
-            % Ren matematikvisning - brug disp
-            disp(['   ' formel_linjer{i}]);
-        end
+        disp(['   ' formel]);
     end
-    
     disp(' ');
 end

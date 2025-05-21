@@ -21,7 +21,7 @@ function forklaringsOutput = startForklaring(titel)
     forklaringsOutput.dato = datestr(now);
     forklaringsOutput.resultat = '';
     
-    % Vis titel med fremhævning
+    % Vis titel
     disp(['===== ' upper(titel) ' =====']);
     disp(' ');
 end

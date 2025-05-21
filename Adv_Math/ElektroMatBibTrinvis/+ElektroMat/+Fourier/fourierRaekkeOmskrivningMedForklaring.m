@@ -113,10 +113,10 @@ function [series_trig, forklaringsOutput] = fourierRaekkeOmskrivningMedForklarin
         end
     end
     
-    forklaringsOutput = tilfoejTrin(forklaringsOutput, 7, ...
-    'Fourierrækken i trigonometrisk form', ...
-    ['Fourierrækken kan nu skrives som:'], ...
-    ['f(t) = a_0/2 + \\sum_{n=1}^{\\infty} [a_n \\cos(n \\omega_0 t) + b_n \\sin(n \\omega_0 t)]']);
+    forklaringsOutput = tilfoejTrin(forklaringsOutput, 2, ...
+        'Identificer Fourierkoefficienter', ...
+        ['Fourierrækken har folgende koefficienter:'], ...
+        series_text);
     
     % Identificer og rapporterer specielle funktioner
     if ~has_nonzero_terms
@@ -302,12 +302,9 @@ function [series_trig, forklaringsOutput] = fourierRaekkeOmskrivningMedForklarin
             if contains(pattern, '1/n')
                 % Tilfælde for 1/n-type mønstre, typisk for firkantsignaler
                 if contains(pattern, '4/pi')
-                    % Her retter vi fejlen i linjen nedenfor
-                    syms k
-                    sin_series = (4/pi)*symsum(1/(2*k-1)*sin((2*k-1)*pi*t), k, 1, inf);
+                    sin_series = sym('(4/pi)*symsum(1/(2*k-1)*sin((2*k-1)*pi*t), k, 1, inf)');
                 elseif contains(pattern, '2/pi')
-                    syms k
-                    sin_series = (2/pi)*symsum(1/(2*k-1)*sin((2*k-1)*pi*t), k, 1, inf);
+                    sin_series = sym('(2/pi)*symsum(1/(2*k-1)*sin((2*k-1)*pi*t), k, 1, inf)');
                 end
                 
                 forklaringsOutput = tilfoejTrin(forklaringsOutput, 10, ...
