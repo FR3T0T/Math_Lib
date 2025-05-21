@@ -1,19 +1,6 @@
 % +ElektroMat/+Forklaringssystem/tilfoejTrin.m
 function forklaringsOutput = tilfoejTrin(forklaringsOutput, trinNummer, trinTitel, trinTekst, formel)
-    % Import forklaringssystem functions
-    import ElektroMat.Forklaringssystem.*
-
-    % TILFØJTRIN Tilføjer et forklaringstrin til forklaringsoutputtet
-    %
-    % Syntax:
-    %   forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, trinNummer, trinTitel, trinTekst, formel)
-    %
-    % Input:
-    %   forklaringsOutput - Forklaringsoutput-struktur
-    %   trinNummer - Nummer på trinet
-    %   trinTitel - Overskrift for trinet
-    %   trinTekst - Forklaringstekst for trinet
-    %   formel - (valgfri) Matematisk formel
+    % Tilføjer et forklaringstrin med forbedret symbolsk formatering
     
     if nargin < 5
         formel = '';
@@ -21,10 +8,19 @@ function forklaringsOutput = tilfoejTrin(forklaringsOutput, trinNummer, trinTite
     
     % Opret trin-struktur
     nytTrin = struct('nummer', trinNummer, 'titel', trinTitel, 'tekst', trinTekst, 'formel', formel);
+    
+    % Gem den symbolske version hvis relevant
+    if isa(formel, 'sym')
+        nytTrin.symbolsk = true;
+        nytTrin.symbolsk_formel = formel;
+    else
+        nytTrin.symbolsk = false;
+    end
+    
     forklaringsOutput.trin{end+1} = nytTrin;
     
     % Vis trin
-    disp(['TRIN ' num2str(trinNummer) ': ' trinTitel]);
+    disp(['<strong>TRIN ' num2str(trinNummer) ': ' trinTitel '</strong>']);
     disp(trinTekst);
     
     % Hvis formel findes, brug Symbolic Math Toolbox til formatering
@@ -32,8 +28,12 @@ function forklaringsOutput = tilfoejTrin(forklaringsOutput, trinNummer, trinTite
         try
             % For forskellige typer input
             if isa(formel, 'sym')
-                % Allerede et symbolsk udtryk
-                pretty(formel);
+                % Gem i vores liste over symbolske elementer
+                forklaringsOutput.symbolske_elementer{end+1} = formel;
+                
+                % Vis med symbolsk formatering
+                disp('Formel:');
+                formatSymbolsk(formel);
             elseif iscell(formel)
                 % Cellearray af symbolske udtryk
                 for i = 1:length(formel)
@@ -41,18 +41,27 @@ function forklaringsOutput = tilfoejTrin(forklaringsOutput, trinNummer, trinTite
                         if i > 1
                             disp(' ');
                         end
-                        pretty(formel{i});
+                        formatSymbolsk(formel{i});
+                        forklaringsOutput.symbolske_elementer{end+1} = formel{i};
                     else
-                        disp(['   ' char(formel{i})]);
+                        % Prøv at konvertere streng til symbolsk hvis muligt
+                        try
+                            symFormel = str2sym(formel{i});
+                            formatSymbolsk(symFormel);
+                            forklaringsOutput.symbolske_elementer{end+1} = symFormel;
+                        catch
+                            disp(['   ' char(formel{i})]);
+                        end
                     end
                 end
             elseif ischar(formel)
                 % Konverter tekst streng til symbolsk udtryk hvis muligt
                 try
                     % For matematiske udtryk, prøv str2sym
-                    if contains(formel, {'=', '+', '-', '*', '/', '^'})
+                    if contains(formel, {'=', '+', '-', '*', '/', '^', 'int', 'sum', 'sqrt'})
                         symFormel = str2sym(formel);
-                        pretty(symFormel);
+                        formatSymbolsk(symFormel);
+                        forklaringsOutput.symbolske_elementer{end+1} = symFormel;
                     else
                         % For almindelig tekst
                         disp(['   ' formel]);
@@ -65,8 +74,9 @@ function forklaringsOutput = tilfoejTrin(forklaringsOutput, trinNummer, trinTite
                 % Andet format
                 disp(['   ' char(formel)]);
             end
-        catch
+        catch e
             % Fallback hvis symbolsk formatering fejler
+            warning(['Fejl i symbolsk formatering: ' e.message]);
             if iscell(formel)
                 for i = 1:length(formel)
                     disp(['   ' char(formel{i})]);
@@ -78,4 +88,23 @@ function forklaringsOutput = tilfoejTrin(forklaringsOutput, trinNummer, trinTite
     end
     
     disp(' ');
+end
+
+function formatSymbolsk(expr)
+    % Helper funktion til at formatere symbolske udtryk
+    try
+        % For komplekse udtryk, brug latex og pæn udskrift
+        latexStr = latex(expr);
+        
+        % Check om dette kører i Live Script miljø hvor vi kan bruge TeX
+        if usejava('desktop') && ~isempty(which('matlab.internal.display.isHot')) && matlab.internal.display.isHot
+            disp(['$' latexStr '$']);
+        else
+            % Ellers brug pretty print
+            pretty(expr);
+        end
+    catch
+        % Fallback hvis latex fejler
+        pretty(expr);
+    end
 end

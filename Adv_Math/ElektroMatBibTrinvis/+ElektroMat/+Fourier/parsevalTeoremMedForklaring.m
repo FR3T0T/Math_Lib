@@ -3,6 +3,7 @@ function [P, forklaringsOutput] = parsevalTeoremMedForklaring(cn, N)
     import ElektroMat.Forklaringssystem.*
 
     % PARSEVALTEOREM_MED_FORKLARING Forklarer Parsevals teorem og beregner signalets effekt
+    % med symbolsk formatering
     %
     % Syntax:
     %   [P, forklaringsOutput] = ElektroMatBibTrinvis.parsevalTeoremMedForklaring(cn, N)
@@ -16,17 +17,20 @@ function [P, forklaringsOutput] = parsevalTeoremMedForklaring(cn, N)
     %   forklaringsOutput - Struktur med forklaringstrin
     
     % Starter forklaring
-    forklaringsOutput = ElektroMat.Forklaringssystem.startForklaring('Parsevals Teorem');
+    forklaringsOutput = startForklaring('Parsevals Teorem');
     
-    % Undgå symbolske operationer i starten, brug almindeligt tekstformat
-    parsevals_tekst = '(1/T) · ∫ |f(t)|² dt = |c₀|² + ∑ |cₙ|² fra n = -∞ til ∞, n ≠ 0';
+    % Opret symbolske variabler til forklaring
+    syms t T n;
     
-    forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 1, ...
+    % Definer Parsevals teorem med symbolsk notation
+    parsevals_eq = sym('(1/T)*int(abs(f(t))^2, t, 0, T) = abs(c_0)^2 + sum(abs(c_n)^2, n, -inf, inf, n ~= 0)');
+    
+    forklaringsOutput = tilfoejTrin(forklaringsOutput, 1, ...
         'Definér Parsevals teorem', ...
         ['Parsevals teorem forbinder effekten beregnet i tidsdomænet med Fourierkoefficienterne:'], ...
-        parsevals_tekst);
+        parsevals_eq);
     
-    forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 2, ...
+    forklaringsOutput = tilfoejTrin(forklaringsOutput, 2, ...
         'Fortolk Parsevals teorem', ...
         ['Teoremet viser, at middeleffekten af et periodisk signal kan beregnes ved at summere kvadraterne af amplituderne af alle frekvenskomponenter.'], ...
         ['Dette gør det muligt at analysere signalets effektfordeling over forskellige frekvenser.']);
@@ -37,9 +41,12 @@ function [P, forklaringsOutput] = parsevalTeoremMedForklaring(cn, N)
         c0_squared = abs(cn.c0)^2;
     end
     
-    % Opret et tekstbaseret output for trin 3
-    power_text = ['|c₀|² = ' num2str(c0_squared, '%.6f')];
+    % Opret symbolske udtryk for power_sum
+    power_text = sym(['abs(c_0)^2 = ' num2str(c0_squared, '%.6f')]);
     power_sum = c0_squared;
+    
+    % Opsaml bidrag fra hver frekvenskomponent med symbolske udtryk
+    power_terms = sym('0');
     
     for k = 1:N
         pos_term = 0;
@@ -55,45 +62,48 @@ function [P, forklaringsOutput] = parsevalTeoremMedForklaring(cn, N)
             power_sum = power_sum + neg_term;
         end
         
-        % Tilføj denne term til teksten
-        term_text = ['\n|c₋' num2str(k) '|² + |c' num2str(k) '|² = ' ...
-                    num2str(neg_term, '%.6f') ' + ' num2str(pos_term, '%.6f') ...
-                    ' = ' num2str(neg_term + pos_term, '%.6f')];
-        power_text = [power_text term_text];
+        % Opbyg symbolsk sum
+        if pos_term > 0 || neg_term > 0
+            term_sym = sym(['abs(c_{-' num2str(k) '})^2 + abs(c_' num2str(k) ')^2 = ' ...
+                       num2str(neg_term, '%.6f') ' + ' num2str(pos_term, '%.6f') ...
+                       ' = ' num2str(neg_term + pos_term, '%.6f')]);
+            
+            power_terms = [power_terms; term_sym];
+        end
     end
     
-    forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 3, ...
+    % Vis effektbidrag med symbolsk formatering
+    forklaringsOutput = tilfoejTrin(forklaringsOutput, 3, ...
         'Beregn effektbidrag fra hver frekvenskomponent', ...
         ['Vi beregner effektbidraget fra hver enkelt frekvenskomponent:'], ...
-        power_text);
+        power_terms);
     
-    % Trin 4: Summér effekter - uden symbolsk formatering
-    power_sum_text = ['P = ' num2str(power_sum, '%.6f')];
+    % Trin 4: Summér effekter med symbolsk formatering
+    power_sum_sym = sym(['P = ' num2str(power_sum, '%.6f')]);
     
-    forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 4, ...
+    forklaringsOutput = tilfoejTrin(forklaringsOutput, 4, ...
         'Summér effekter', ...
         ['Den samlede middeleffekt er summen af alle effektbidrag:'], ...
-        power_sum_text);
+        power_sum_sym);
     
     % Trin 5: Beregn relativ effektfordeling
     if power_sum > 0
         dc_percentage = 100*c0_squared/power_sum;
-        dc_percentage_text = ['DC-komponent (c₀): ' num2str(dc_percentage, '%.2f') '%'];
+        dc_percentage_sym = sym(['DC-komponent (c_0): ' num2str(dc_percentage, '%.2f') '%']);
         
-        forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 5, ...
+        forklaringsOutput = tilfoejTrin(forklaringsOutput, 5, ...
             'Beregn relativ effektfordeling', ...
             ['Vi kan også beregne, hvor meget hver frekvenskomponent bidrager til den samlede effekt:'], ...
-            dc_percentage_text);
+            dc_percentage_sym);
     end
     
     % Resultat
     P = power_sum;
     
-    % Afslut med et tekstresultat
-    result_text = ['Middeleffekten er ' num2str(P, '%.6f')];
+    % Afslut med et symbolsk resultat
+    result_sym = sym(['P = ' num2str(P, '%.6f')]);
     
-    forklaringsOutput = ElektroMat.Forklaringssystem.afslutForklaring(forklaringsOutput, ...
-        result_text);
+    forklaringsOutput = afslutForklaring(forklaringsOutput, result_sym);
     
     % Visualiser effektspektrum
     figure;
