@@ -302,9 +302,11 @@ function [series_trig, forklaringsOutput] = fourierRaekkeOmskrivningMedForklarin
             if contains(pattern, '1/n')
                 % Tilfælde for 1/n-type mønstre, typisk for firkantsignaler
                 if contains(pattern, '4/pi')
-                    sin_series = sym('(4/pi)*symsum(1/(2*k-1)*sin((2*k-1)*pi*t), k, 1, inf)');
+                    % RETTELSE: Brug str2sym i stedet for sym for komplekse symbolske udtryk
+                    sin_series = str2sym('(4/pi)*symsum(1/(2*k-1)*sin((2*k-1)*pi*t), k, 1, inf)');
                 elseif contains(pattern, '2/pi')
-                    sin_series = sym('(2/pi)*symsum(1/(2*k-1)*sin((2*k-1)*pi*t), k, 1, inf)');
+                    % RETTELSE: Brug str2sym i stedet for sym for komplekse symbolske udtryk
+                    sin_series = str2sym('(2/pi)*symsum(1/(2*k-1)*sin((2*k-1)*pi*t), k, 1, inf)');
                 end
                 
                 forklaringsOutput = tilfoejTrin(forklaringsOutput, 10, ...
@@ -324,6 +326,11 @@ end
 % Hjælpefunktion til formatering af komplekse tal med korrekt 'i'
 function str = formatComplexNumber(z)
     % Formaterer et komplekst tal til tekst med korrekt ASCII 'i'
+    % Først konverter til double for at undgå symbolsk fejl
+    if isa(z, 'sym')
+        z = double(z);
+    end
+    
     re = real(z);
     im = imag(z);
     
