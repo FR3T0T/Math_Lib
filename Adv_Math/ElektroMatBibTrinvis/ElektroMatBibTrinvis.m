@@ -3,9 +3,8 @@
 % trinvise forklaringer til matematiske operationer.
 %
 % Udvikler: Frederik Tots
-% Version: 3.0
-% Dato: 21/5/2025
-% Opdateret med Symbolic Math Toolbox understøttelse
+% Version: 2.0
+% Dato: 4/4/2025
 
 classdef ElektroMatBibTrinvis
     methods(Static)
@@ -24,31 +23,6 @@ classdef ElektroMatBibTrinvis
         
         function forklaringsOutput = ElektroMat.Forklaringssystem.afslutForklaring(forklaringsOutput, resultat)
             forklaringsOutput = ElektroMat.Forklaringssystem.afslutForklaring(forklaringsOutput, resultat);
-        end
-        
-        %% SYMBOLSK FORMATERING %%
-        function formatteret = formatMatematisk(expr)
-            formatteret = ElektroMat.Symbolsk.formatMatematisk(expr);
-        end
-        
-        function visMatematisk(expr, titel)
-            if nargin < 2
-                ElektroMat.Symbolsk.visMatematisk(expr);
-            else
-                ElektroMat.Symbolsk.visMatematisk(expr, titel);
-            end
-        end
-        
-        function sym_expr = tekstTilSymbolsk(tekst)
-            sym_expr = ElektroMat.Symbolsk.tekstTilSymbolsk(tekst);
-        end
-        
-        function latex_str = symbTilLatex(expr)
-            latex_str = ElektroMat.Symbolsk.symbTilLatex(expr);
-        end
-        
-        function forbedretExpr = forbedreSymbolskVisning(expr)
-            forbedretExpr = ElektroMat.Symbolsk.forbedreSymbolskVisning(expr);
         end
         
         %% LAPLACE TRANSFORMATIONER MED TRINVISE FORKLARINGER %%
@@ -97,7 +71,6 @@ classdef ElektroMatBibTrinvis
         function [F_inv, forklaringsOutput] = fourierAfFourierMedForklaring(f, t, omega)
             [F_inv, forklaringsOutput] = ElektroMat.Fourier.fourierAfFourierMedForklaring(f, t, omega);
         end
-        
         function [series_trig, forklaringsOutput] = fourierRaekkeOmskrivningMedForklaring(cn, t, T, N)
             [series_trig, forklaringsOutput] = ElektroMat.Fourier.fourierRaekkeOmskrivningMedForklaring(cn, t, T, N);
         end
@@ -228,7 +201,6 @@ classdef ElektroMatBibTrinvis
         function [F, forklaringsOutput] = forsinkelsesRegelMedForklaring(f_expr, t0, t, s)
             [F, forklaringsOutput] = ElektroMat.SpecielleFunktioner.forsinkelsesRegelMedForklaring(f_expr, t0, t, s);
         end
-        
         function [f_t, forklaringsOutput] = stykkevisFunktionMedForklaring(func_liste, graenser, t)
             [f_t, forklaringsOutput] = ElektroMat.SpecielleFunktioner.stykkevisFunktionMedForklaring(func_liste, graenser, t);
         end
