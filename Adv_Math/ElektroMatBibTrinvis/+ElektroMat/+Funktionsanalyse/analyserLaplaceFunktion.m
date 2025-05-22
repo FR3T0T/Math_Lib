@@ -2,7 +2,7 @@ function [Ftype, params] = analyserLaplaceFunktion(F, s)
     % ANALYSERLAPLACEFUNCTION Analyserer en Laplace-funktion og identificerer dens type
     %
     % Syntax:
-    %   [Ftype, params] = ElektroMatBibTrinvis.analyserLaplaceFunktion(F, s)
+    %   [Ftype, params] = analyserLaplaceFunktion(F, s)
     %
     % Input:
     %   F - funktion af s (symbolsk)
@@ -27,62 +27,83 @@ function [Ftype, params] = analyserLaplaceFunktion(F, s)
     [num, den] = numden(F);
     
     if den ~= 1
-        % Det er en brøk
+        % Det er en brøk - undersøg strukturen
         
-        % Tjek for simple poler
-        if den == s - sym('a')
-            Ftype = 'simpel_pol';
-            params.pol = sym('a');
-            return;
-        elseif den == s + sym('a')
-            Ftype = 'simpel_pol';
-            params.pol = -sym('a');
-            return;
-        elseif den == (s - sym('a'))^2
-            Ftype = 'dobbelt_pol';
-            params.pol = sym('a');
-            return;
-        elseif den == (s + sym('a'))^2
-            Ftype = 'dobbelt_pol';
-            params.pol = -sym('a');
-            return;
-        end
-        
-        % Tjek for kvadratisk nævner
+        % Konverter til polynomier for analyse
         try
-            den_expanded = expand(den);
-            if polynomialDegree(den_expanded, s) == 2
-                % Kvadratisk nævner
-                coef = coeffs(den_expanded, s, 'All');
-                if length(coef) == 3
-                    a = coef(2) / coef(1);
-                    b_squared = coef(3) / coef(1);
-                    
-                    if b_squared > 0 % Skal være positivt for komplekse rødder
-                        Ftype = 'kvadratisk_naevner';
-                        params.a = a/2;
-                        params.b = sqrt(b_squared - (a/2)^2);
-                        return;
-                    end
+            if isa(num, 'sym')
+                num_poly = sym2poly(num);
+            else
+                num_poly = double(num);
+            end
+            
+            if isa(den, 'sym')
+                den_poly = sym2poly(den);
+            else
+                den_poly = double(den);
+            end
+            
+            % Find poler
+            poler = roots(den_poly);
+            
+            % Analyser polstrukturen
+            if length(poler) == 1
+                % En enkelt pol
+                if abs(imag(poler(1))) < 1e-10
+                    % Reel pol
+                    Ftype = 'simpel_pol';
+                    params.pol = poler(1);
+                    return;
+                end
+            elseif length(poler) == 2
+                % To poler
+                if abs(poler(1) - poler(2)) < 1e-10
+                    % Dobbelt pol
+                    Ftype = 'dobbelt_pol';
+                    params.pol = poler(1);
+                    return;
+                elseif abs(imag(poler(1))) > 1e-10 && abs(real(poler(1)) - real(poler(2))) < 1e-10
+                    % Kompleks pol-par
+                    Ftype = 'kvadratisk_naevner';
+                    params.a = -real(poler(1));
+                    params.b = abs(imag(poler(1)));
+                    return;
                 end
             end
-        catch
-            % Ikke kvadratisk eller kunne ikke analyseres
-        end
-        
-        % Tjek for partiel brøk
-        try
-            % Forsøg at konvertere til polynomier
-            num_poly = sym2poly(num);
-            den_poly = sym2poly(den);
+            
+            % Hvis vi kommer hertil, er det en generel rationel funktion
             Ftype = 'partiel_brok';
             params.num = num_poly;
             params.den = den_poly;
-            % Normalt ville vi beregne rester og poler her, men for enkelheds skyld
-            % opretholder vi kun polynomierne
+            params.poler = poler;
             return;
+            
         catch
-            % Ikke en rationel funktion der kan konverteres til polynomier
+            % Hvis polynomium konvertering fejler
+            Ftype = 'partiel_brok';
+            params.num = num;
+            params.den = den;
+            return;
+        end
+        
+    else
+        % Ikke en brøk - undersøg andre mønstre
+        
+        % Tjek for simple former
+        if isequal(F, s)
+            Ftype = 'generel';
+            params.form = 'lineær';
+            return;
+        end
+        
+        if has(F, s^2)
+            Ftype = 'generel';
+            params.form = 'polynomium';
+            return;
         end
     end
+    
+    % Default: generel funktion
+    Ftype = 'generel';
+    params.udtryk = F;
 end

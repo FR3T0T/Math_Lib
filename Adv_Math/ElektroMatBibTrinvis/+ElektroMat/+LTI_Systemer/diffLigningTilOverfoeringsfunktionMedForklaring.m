@@ -5,7 +5,7 @@ function [num, den, forklaringsOutput] = diffLigningTilOverfoeringsfunktionMedFo
     % DIFFLIGNINGTILOVERFØRINGSFUNKTION_MED_FORKLARING Konverterer differentialligning til overføringsfunktion med trinvis forklaring
     %
     % Syntax:
-    %   [num, den, forklaringsOutput] = ElektroMatBibTrinvis.diffLigningTilOverfoeringsfunktionMedForklaring(b, a)
+    %   [num, den, forklaringsOutput] = diffLigningTilOverfoeringsfunktionMedForklaring(b, a)
     %
     % Input:
     %   b - koefficienter for input [b_m, b_{m-1}, ..., b_0]
@@ -17,9 +17,9 @@ function [num, den, forklaringsOutput] = diffLigningTilOverfoeringsfunktionMedFo
     %   forklaringsOutput - Struktur med forklaringstrin
     
     % Starter forklaring
-    forklaringsOutput = ElektroMat.Forklaringssystem.startForklaring('Konvertering af Differentialligning til Overføringsfunktion');
+    forklaringsOutput = startForklaring('Konvertering af Differentialligning til Overføringsfunktion');
     
-    % Vis koefficienterne
+    % Vis koefficienterne (RETTET FORMATERING)
     a_str = 'a = [';
     for i = 1:length(a)
         if i == 1
@@ -28,7 +28,7 @@ function [num, den, forklaringsOutput] = diffLigningTilOverfoeringsfunktionMedFo
             a_str = [a_str ', ' num2str(a(i))];
         end
     end
-    a_str = [a_str ']'];
+    a_str = [a_str '] (output koefficienter)'];
     
     b_str = 'b = [';
     for i = 1:length(b)
@@ -38,12 +38,15 @@ function [num, den, forklaringsOutput] = diffLigningTilOverfoeringsfunktionMedFo
             b_str = [b_str ', ' num2str(b(i))];
         end
     end
-    b_str = [b_str ']'];
+    b_str = [b_str '] (input koefficienter)'];
     
-    forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 1, ...
+    % RETTET: Brug char(10) i stedet for \n for korrekte linjeskift
+    koeff_tekst = [a_str char(10) b_str];
+    
+    forklaringsOutput = tilfoejTrin(forklaringsOutput, 1, ...
         'Identificer differentialligningen', ...
         'Vi starter med koefficienterne for differentialligningen.', ...
-        [a_str ' (output koefficienter)\n' b_str ' (input koefficienter)']);
+        koeff_tekst);
     
     % Opbyg differentialligningen som tekst
     diff_equation = '';
@@ -64,17 +67,17 @@ function [num, den, forklaringsOutput] = diffLigningTilOverfoeringsfunktionMedFo
         end
     end
     
-    forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 2, ...
+    forklaringsOutput = tilfoejTrin(forklaringsOutput, 2, ...
         'Opskriv differentialligningen', ...
         'Differentialligningen har følgende form:', ...
         diff_equation);
     
-    forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 3, ...
+    forklaringsOutput = tilfoejTrin(forklaringsOutput, 3, ...
         'Tag Laplacetransformationen af begge sider', ...
         'Vi anvender Laplacetransformationen på hele ligningen under antagelse af nulbetingelser.', ...
         'L{y^(n)} = s^n·Y(s) - s^(n-1)·y(0) - ... - y^(n-1)(0)');
     
-    forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 4, ...
+    forklaringsOutput = tilfoejTrin(forklaringsOutput, 4, ...
         'Antag nulbetingelser', ...
         'Vi antager at alle startbetingelser er nul: y(0) = y''(0) = ... = y^(n-1)(0) = 0.', ...
         'Dette giver: L{y^(n)} = s^n·Y(s)');
@@ -98,12 +101,12 @@ function [num, den, forklaringsOutput] = diffLigningTilOverfoeringsfunktionMedFo
         end
     end
     
-    forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 5, ...
+    forklaringsOutput = tilfoejTrin(forklaringsOutput, 5, ...
         'Opskriv ligningen i Laplace-domæne', ...
         'Efter Laplacetransformation får vi:', ...
         laplace_equation);
     
-    forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 6, ...
+    forklaringsOutput = tilfoejTrin(forklaringsOutput, 6, ...
         'Isolér overføringsfunktionen', ...
         'Vi omskriver ligningen til at have Y(s) på venstre side og X(s) på højre side.', ...
         'Derefter kan vi definere overføringsfunktionen H(s) = Y(s)/X(s)');
@@ -120,10 +123,10 @@ function [num, den, forklaringsOutput] = diffLigningTilOverfoeringsfunktionMedFo
         num_sym = num_sym + b(i) * s^(length(b)-i);
     end
     
-    forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 7, ...
+    forklaringsOutput = tilfoejTrin(forklaringsOutput, 7, ...
         'Opskriv overføringsfunktionen', ...
         'Overføringsfunktionen er forholdet mellem output og input i Laplace-domæne.', ...
-        ['H(s) = Y(s)/X(s) = ' char(num_sym) ' / ' char(den_sym)]);
+        ['H(s) = Y(s)/X(s) = (' char(num_sym) ') / (' char(den_sym) ')']);
     
     % Sørg for at a og b har korrekt format
     if isempty(a) || a(1) == 0
@@ -135,10 +138,13 @@ function [num, den, forklaringsOutput] = diffLigningTilOverfoeringsfunktionMedFo
         b_norm = b / a(1);
         a_norm = a / a(1);
         
-        forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 8, ...
+        num_norm_sym = num_sym / a(1);
+        den_norm_sym = den_sym / a(1);
+        
+        forklaringsOutput = tilfoejTrin(forklaringsOutput, 8, ...
             'Normaliser overføringsfunktionen', ...
             'Vi normaliser koefficienterne så den højeste koefficient i nævneren er 1.', ...
-            ['H(s) = ' char(num_sym/a(1)) ' / ' char(den_sym/a(1))]);
+            ['H(s) = (' char(num_norm_sym) ') / (' char(den_norm_sym) ')']);
     else
         b_norm = b;
         a_norm = a;
@@ -148,7 +154,10 @@ function [num, den, forklaringsOutput] = diffLigningTilOverfoeringsfunktionMedFo
     num = b_norm;
     den = a_norm;
     
-    % Afslut forklaring
-    forklaringsOutput = ElektroMat.Forklaringssystem.afslutForklaring(forklaringsOutput, ...
-        ['H(s) = ' char(poly2sym(num, s)) ' / ' char(poly2sym(den, s))]);
+    % Opbyg det endelige resultat pænt
+    H_final = poly2sym(num, s) / poly2sym(den, s);
+    
+    % Afslut forklaring med det endelige pæne resultat
+    forklaringsOutput = afslutForklaring(forklaringsOutput, ...
+        ['H(s) = ' char(H_final)]);
 end

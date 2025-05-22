@@ -158,6 +158,13 @@ classdef ElektroMatBibTrinvis
         function forklaringsOutput = visBodeDiagramMedForklaring(num, den, omega_range)
             forklaringsOutput = ElektroMat.LTI_Systemer.visBodeDiagramMedForklaring(num, den, omega_range);
         end
+        function [poler, nulpunkter, stabilitet, forklaringsOutput] = polNulpunktsDiagramMedForklaring(num, den, system_navn)
+            if nargin < 3
+                [poler, nulpunkter, stabilitet, forklaringsOutput] = ElektroMat.LTI_Systemer.polNulpunktsDiagramMedForklaring(num, den);
+            else
+                [poler, nulpunkter, stabilitet, forklaringsOutput] = ElektroMat.LTI_Systemer.polNulpunktsDiagramMedForklaring(num, den, system_navn);
+            end
+        end
         
         %% KOMPLETTE ANALYSERAPPORTER MED TRINVISE FORKLARINGER %%
         function kompletSystemAanalyse(num, den, system_navn)
