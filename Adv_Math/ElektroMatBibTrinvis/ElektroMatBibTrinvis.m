@@ -42,6 +42,12 @@ classdef ElektroMatBibTrinvis
         function [G, forklaringsOutput] = diffLaplaceMedForklaring(F_s, s, n)
             [G, forklaringsOutput] = ElektroMat.Laplace.diffLaplaceMedForklaring(F_s, s, n);
         end
+
+        %% TRIN-FOR-TRIN FORKLARINGER FOR LAPLACE TRANSFORMATIONER %%
+        
+        function [F, forklaringsOutput] = forklarTGangeExp(f, t, s, params, forklaringsOutput)
+            [F, forklaringsOutput] = ElektroMat.Laplace.forklarTGangeExp(f, t, s, params, forklaringsOutput);
+        end
         
         %% FOURIER TRANSFORMATIONER MED TRINVISE FORKLARINGER (NYE) %%
         function [F, forklaringsOutput] = fourierMedForklaring(f, t, omega)

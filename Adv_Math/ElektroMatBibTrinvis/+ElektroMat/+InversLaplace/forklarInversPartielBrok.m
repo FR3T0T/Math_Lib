@@ -14,7 +14,9 @@ function [f, forklaringsOutput] = forklarInversPartielBrok(F, s, t, params, fork
         'Vi opløser den rationelle funktion i en sum af simplere brøker.', ...
         'F(s) = A₁/(s-p₁) + A₂/(s-p₂) + ... + B₁/((s-q₁)²+r₁²) + ...');
     
-    % RETTET: Faktisk beregning af partialbrøkopløsning
+    % FORBEDRET: Faktisk beregning af partialbrøkopløsning med bedre fejlhåndtering
+    partialFractionSuccess = false;
+    
     try
         % Udtræk tæller og nævner
         [num_coeffs, den_coeffs] = numden(F);
@@ -23,13 +25,13 @@ function [f, forklaringsOutput] = forklarInversPartielBrok(F, s, t, params, fork
         if isa(num_coeffs, 'sym')
             num_poly = sym2poly(num_coeffs);
         else
-            num_poly = num_coeffs;
+            num_poly = double(num_coeffs);
         end
         
         if isa(den_coeffs, 'sym')
             den_poly = sym2poly(den_coeffs);
         else
-            den_poly = den_coeffs;
+            den_poly = double(den_coeffs);
         end
         
         % Brug MATLAB's residue funktion for partialbrøkopløsning
@@ -40,11 +42,11 @@ function [f, forklaringsOutput] = forklarInversPartielBrok(F, s, t, params, fork
             ['Vi finder residuerne og polerne:'], ...
             ['Antal poler: ' num2str(length(p)) char(10) 'Polerne er rødder af nævnerpolynomiet']);
         
-        % Vis polerne
+        % Vis polerne med forbedret formatering
         pol_tekst = 'Poler og residuer:';
         for i = 1:length(p)
             if abs(imag(p(i))) < 1e-10
-                pol_tekst = [pol_tekst char(10) 'p' num2str(i) ' = ' num2str(real(p(i)), '%.6f') ', residue = ' num2str(r(i), '%.6f')];
+                pol_tekst = [pol_tekst char(10) 'p' num2str(i) ' = ' num2str(real(p(i)), '%.6f') ', residue = ' num2str(real(r(i)), '%.6f')];
             else
                 pol_tekst = [pol_tekst char(10) 'p' num2str(i) ' = ' num2str(real(p(i)), '%.6f') ' ± j' num2str(abs(imag(p(i))), '%.6f') ', residue = ' num2str(real(r(i)), '%.6f') ' ± j' num2str(imag(r(i)), '%.6f')];
             end
@@ -55,20 +57,22 @@ function [f, forklaringsOutput] = forklarInversPartielBrok(F, s, t, params, fork
             'Vi har fundet følgende poler og residuer:', ...
             pol_tekst);
         
-    catch
-        % Fallback hvis partialbrøkopløsning fejler
+        partialFractionSuccess = true;
+        
+    catch ME
+        % Forbedret fejlhåndtering - vis specifik fejl
         forklaringsOutput = tilfoejTrin(forklaringsOutput, 4, ...
-            'Anvend MATLAB''s symbolske beregning', ...
-            'Vi bruger MATLAB''s indbyggede funktioner til den komplekse beregning.', ...
-            '');
+            'Partialbrøkopløsning kræver numeriske metoder', ...
+            ['Automatisk partialbrøkopløsning fejlede: ' ME.message], ...
+            'Vi fortsætter med MATLAB''s symbolske beregning.');
     end
     
     forklaringsOutput = tilfoejTrin(forklaringsOutput, 6, ...
         'Anvend invers transformation på hver delbrøk', ...
         'Vi transformerer hver delbrøk separat ved hjælp af standardformler.', ...
-        ['L^(-1){1/(s-a)} = e^(at)' char(10) 'L^(-1){b/((s+a)²+b²)} = e^(-at)sin(bt)' char(10) 'L^(-1){(s+a)/((s+a)²+b²)} = e^(-at)cos(bt)']);
+        ['L^(-1){1/(s-a)} = e^(at) · u(t)' char(10) 'L^(-1){b/((s+a)²+b²)} = e^(-at)sin(bt) · u(t)' char(10) 'L^(-1){(s+a)/((s+a)²+b²)} = e^(-at)cos(bt) · u(t)']);
     
-    % RETTET: Faktisk beregning af invers Laplace-transformation
+    % FORBEDRET: Faktisk beregning af invers Laplace-transformation
     try
         % Brug MATLAB's ilaplace funktion
         f_result = ilaplace(F, s, t);
@@ -83,14 +87,16 @@ function [f, forklaringsOutput] = forklarInversPartielBrok(F, s, t, params, fork
         
         f = f_simplified;
         
-    catch
-        % Hvis symbolsk beregning fejler, giv en struktureret besked
-        forklaringsOutput = tilfoejTrin(forklaringsOutput, 7, ...
-            'Kompleks beregning', ...
-            'Den inverse Laplace-transformation er kompleks for dette udtryk.', ...
-            'Brug numeriske metoder eller specialiseret software for det eksakte resultat.');
+    catch ME
+        % Hvis symbolsk beregning fejler, giv en struktureret besked med specifik fejl
+        warning('Invers Laplace-transformation fejlede: %s', ME.message);
         
-        f = sym('Kompleks_udtryk_kræver_numerisk_beregning');
+        forklaringsOutput = tilfoejTrin(forklaringsOutput, 7, ...
+            'Kompleks beregning kræver specialiserede metoder', ...
+            ['Den inverse Laplace-transformation er kompleks for dette udtryk.', char(10), 'Fejl: ', ME.message], ...
+            'Brug numeriske metoder eller konsulter tabeller over Laplace-transformationer.');
+        
+        f = sym('KompleksUdtryk_KraeverNumeriskBeregning');
     end
     
     forklaringsOutput = tilfoejTrin(forklaringsOutput, 8, ...

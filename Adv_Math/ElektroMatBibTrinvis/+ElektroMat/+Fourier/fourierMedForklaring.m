@@ -6,7 +6,7 @@ function [F, forklaringsOutput] = fourierMedForklaring(f, t, omega)
     % FOURIER_MED_FORKLARING Beregner Fouriertransformationen med trinvis forklaring
     %
     % Syntax:
-    %   [F, forklaringsOutput] = ElektroMatBibTrinvis.fourierMedForklaring(f, t, omega)
+    %   [F, forklaringsOutput] = fourierMedForklaring(f, t, omega)
     %
     % Input:
     %   f - funktion af t (symbolsk)
@@ -16,6 +16,15 @@ function [F, forklaringsOutput] = fourierMedForklaring(f, t, omega)
     % Output:
     %   F - Fouriertransformationen F(omega)
     %   forklaringsOutput - Struktur med forklaringstrin
+
+    % INPUT VALIDERING
+    if ~isa(f, 'sym') || ~isa(t, 'sym') || ~isa(omega, 'sym')
+        error('Alle input skal være symbolske variable');
+    end
+    
+    if ~has(f, t)
+        error('f skal være en funktion af t');
+    end
 
     % Start forklaring
     forklaringsOutput = startForklaring('Fouriertransformation');
@@ -31,8 +40,14 @@ function [F, forklaringsOutput] = fourierMedForklaring(f, t, omega)
         'Fouriertransformationen er defineret som:',  ...
         ['F(ω) = ∫ f(t) · e^(-jωt) dt fra -∞ til ∞']);
 
-    % Analyser funktionen (lignende den eksisterende analyserFunktion)
-    [ftype, params] = ElektroMat.Funktionsanalyse.analyserFunktion(f, t);
+    % Analyser funktionen med forbedret fejlhåndtering
+    try
+        [ftype, params] = ElektroMat.Funktionsanalyse.analyserFunktion(f, t);
+    catch ME
+        warning('Funktionsanalyse fejlede: %s', ME.message);
+        ftype = 'generel';
+        params = struct();
+    end
 
     % Baseret på funktionstypen, anvend forskellige tilgange
     switch ftype
@@ -48,30 +63,40 @@ function [F, forklaringsOutput] = fourierMedForklaring(f, t, omega)
         case 'exp'
             a = params.a;
             if isreal(a)
-                if a < 0
+                if real(a) < 0  % RETTET: Brug real() for at håndtere komplekse a
                     F = 1/(1j*omega - a);
                     
                     forklaringsOutput = tilfoejTrin(forklaringsOutput, 3, ...
                         'Fouriertransformation af eksponentialfunktion', ...
-                        ['Fouriertransformationen af e^(' char(a) 't) for ' char(a) ' < 0 er:'], ...
+                        ['Fouriertransformationen af e^(' char(a) 't) for Re{' char(a) '} < 0 er:'], ...
                         ['F(ω) = 1/(jω - ' char(a) ')']);
                 else
-                    F = sym('Function not transformable with standard FT');
+                    F = sym('TransformationEksistererIkke_UstabilFunktion');
                     
                     forklaringsOutput = tilfoejTrin(forklaringsOutput, 3, ...
                         'Fouriertransformation eksisterer ikke', ...
-                        ['Fouriertransformationen af e^(' char(a) 't) for ' char(a) ' > 0 eksisterer ikke i standardforstand'], ...
+                        ['Fouriertransformationen af e^(' char(a) 't) for Re{' char(a) '} ≥ 0 eksisterer ikke i standardforstand'], ...
                         ['Funktionen vokser for hurtigt når t → ∞']);
                 end
             else
                 % Kompleks eksponentialfunktion
                 % e^(i*a*t) → 2π*δ(ω-a)
-                F = 2*pi*dirac(omega - imag(a));
-                
-                forklaringsOutput = tilfoejTrin(forklaringsOutput, 3, ...
-                    'Fouriertransformation af kompleks eksponentialfunktion', ...
-                    ['Fouriertransformationen af e^(j' char(imag(a)) 't) er:'], ...
-                    ['F(ω) = 2π · δ(ω - ' char(imag(a)) ')']);
+                if isreal(imag(a))
+                    F = 2*pi*dirac(omega - imag(a));
+                    
+                    forklaringsOutput = tilfoejTrin(forklaringsOutput, 3, ...
+                        'Fouriertransformation af kompleks eksponentialfunktion', ...
+                        ['Fouriertransformationen af e^(j' char(imag(a)) 't) er:'], ...
+                        ['F(ω) = 2π · δ(ω - ' char(imag(a)) ')']);
+                else
+                    % Generel kompleks eksponentialfunktion
+                    F = 2*pi*dirac(omega - a);
+                    
+                    forklaringsOutput = tilfoejTrin(forklaringsOutput, 3, ...
+                        'Fouriertransformation af generel kompleks eksponentialfunktion', ...
+                        ['Fouriertransformationen er:'], ...
+                        ['F(ω) = 2π · δ(ω - ' char(a) ')']);
+                end
             end
             
         case 'sin'
@@ -93,7 +118,7 @@ function [F, forklaringsOutput] = fourierMedForklaring(f, t, omega)
                 ['F(ω) = π · (δ(ω + ' char(a) ') + δ(ω - ' char(a) '))']);
         
         otherwise
-            % For generelle funktioner, brug symbolsk beregning hvis muligt
+            % For generelle funktioner, brug symbolsk beregning med forbedret fejlhåndtering
             try
                 F = fourier(f, t, omega);
                 
@@ -101,14 +126,25 @@ function [F, forklaringsOutput] = fourierMedForklaring(f, t, omega)
                     'Beregn Fouriertransformationen symbolsk', ...
                     'Vi beregner integralet symbolsk:', ...
                     ['F(ω) = ' char(F)]);
-            catch
-                F = sym('Complex Fourier Transform');
+                    
+            catch ME
+                % Hvis symbolsk beregning fejler
+                warning('Symbolsk Fouriertransformation fejlede: %s', ME.message);
+                F = sym('KompleksFourierTransformation_KraeverSpecielleTeknikker');
                 
                 forklaringsOutput = tilfoejTrin(forklaringsOutput, 3, ...
                     'Kompleks Fouriertransformation', ...
-                    'Denne funktion kræver specialteknikker for at transformere.', ...
-                    'Ofte involverer det tabelopslag eller specielle integrationsteknikker.');
+                    ['Denne funktion kræver specialteknikker for at transformere. Fejl: ' ME.message], ...
+                    'Konsulter tabeller over Fouriertransformationer eller brug numeriske metoder.');
             end
+    end
+
+    % Tilføj bemærkning om kausalitet for tidsfunktioner
+    if ~contains(char(f), 'heaviside') && ~contains(char(f), 'u(')
+        forklaringsOutput = tilfoejTrin(forklaringsOutput, length(forklaringsOutput.trin) + 1, ...
+            'Bemærkning om kausalitet', ...
+            'Hvis f(t) er en kausalt signal (f(t) = 0 for t < 0), skal dette specificeres eksplicit.', ...
+            'For kausale signaler: f(t) · u(t)');
     end
 
     % Afslut forklaring

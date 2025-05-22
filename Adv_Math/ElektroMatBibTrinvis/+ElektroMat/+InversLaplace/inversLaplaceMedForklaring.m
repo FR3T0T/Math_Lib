@@ -16,6 +16,15 @@ function [f, forklaringsOutput] = inversLaplaceMedForklaring(F, s, t)
     %   f - Den oprindelige funktion f(t) med kausalitetsbetingelse (u(t))
     %   forklaringsOutput - Struktur med forklaringstrin
     
+    % INPUT VALIDERING
+    if ~isa(F, 'sym') || ~isa(s, 'sym') || ~isa(t, 'sym')
+        error('Alle input skal være symbolske variable');
+    end
+    
+    if ~has(F, s)
+        error('F skal være en funktion af s');
+    end
+    
     % Starter forklaring
     forklaringsOutput = startForklaring('Invers Laplacetransformation');
     
@@ -46,41 +55,48 @@ function [f, forklaringsOutput] = inversLaplaceMedForklaring(F, s, t)
             [f, forklaringsOutput] = ElektroMat.InversLaplace.forklarInversPartielBrok(F, s, t, params, forklaringsOutput);
             
         otherwise
-            % RETTET: Brug MATLAB's ilaplace som backup
+            % Brug MATLAB's ilaplace som backup med bedre fejlhåndtering
             try
                 f = ilaplace(F, s, t);
                 forklaringsOutput = tilfoejTrin(forklaringsOutput, 2, ...
                     'Brug MATLAB''s indbyggede ilaplace funktion', ...
-                    'Funktionen er for kompleks til manuel analyse, så vi bruger MATLAB''s symbolske motor.', ...
+                    'Funktionen er kompleks, så vi bruger MATLAB''s symbolske motor.', ...
                     ['Resultat: ' char(f)]);
-            catch
-                f = sym('Kompleks_udtryk');
+            catch ME
+                warning('Kunne ikke beregne invers Laplace-transformation: %s', ME.message);
+                f = sym('UdefineredTransformation');
                 forklaringsOutput = ElektroMat.InversLaplace.forklarInversGenerel(F, s, t, forklaringsOutput);
             end
     end
     
-    % OPDATERING: Tilføj kausalitetsbetingelse (u(t)) til resultatet
+    % FORBEDRET KAUSALITETSHÅNDTERING
     % Tjek om vi har en rationel funktion af s, hvilket normalt indikerer et LTI-system
+    needsCausality = false;
     try
         [num, den] = numden(F);
-        if isa(den, 'sym') && has(den, s)
-            isRational = true;
+        if isa(den, 'sym') && has(den, s) && ~isequal(den, 1)
+            needsCausality = true;
         elseif isa(den, 'double') && den ~= 1
-            isRational = true;
-        else
-            isRational = false;
+            needsCausality = true;
         end
         
-        needsCausality = isRational && ~isequal(f, 0) && ~contains(char(f), 'Kompleks');
+        % Tjek også om resultatet ikke allerede indeholder kausalitet
+        if needsCausality && ~contains(char(f), 'heaviside') && ~contains(char(f), 'u(') && ~isequal(f, 0)
+            needsCausality = true;
+        else
+            needsCausality = false;
+        end
     catch
         % Hvis vi ikke kan afgøre det, antager vi at kausalitetsbetingelsen er nødvendig
-        needsCausality = true;
+        % men kun hvis f ikke er 0 eller indeholder fejlmeddelelser
+        if ~isequal(f, 0) && ~contains(char(f), 'UdefineredTransformation')
+            needsCausality = true;
+        end
     end
     
-    % Tilføj kausalitetsbetingelsen hvis nødvendigt
-    if needsCausality && ~contains(char(f), 'heaviside') && ~contains(char(f), 'u(')
+    % Tilføj kausalitetsbetingelsen konsistent
+    if needsCausality
         try
-            % Forsøg at bruge heaviside
             f_kausal = f * heaviside(t);
             
             % Tilføj et forklaringstrin om kausalitetsbetingelsen

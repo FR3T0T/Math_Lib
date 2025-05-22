@@ -5,7 +5,7 @@ function [y, forklaringsOutput] = beregnUdgangssignalMedForklaring(H_s, X_s, s, 
     % BEREGNUDGANGSSIGNAL_MED_FORKLARING Beregner udgangssignalet ved hjælp af overføringsfunktion og indgangssignal
     %
     % Syntax:
-    %   [y, forklaringsOutput] = ElektroMatBibTrinvis.beregnUdgangssignalMedForklaring(H_s, X_s, s, t)
+    %   [y, forklaringsOutput] = beregnUdgangssignalMedForklaring(H_s, X_s, s, t)
     %
     % Input:
     %   H_s - overføringsfunktion (symbolsk udtryk)
@@ -17,27 +17,36 @@ function [y, forklaringsOutput] = beregnUdgangssignalMedForklaring(H_s, X_s, s, 
     %   y - udgangssignal y(t) med kausalitetsbetingelse
     %   forklaringsOutput - Struktur med forklaringstrin
 
+    % INPUT VALIDERING
+    if ~isa(H_s, 'sym') || ~isa(X_s, 'sym') || ~isa(s, 'sym') || ~isa(t, 'sym')
+        error('Alle input skal være symbolske variable');
+    end
+    
+    if ~has(H_s, s) || ~has(X_s, s)
+        error('H_s og X_s skal være funktioner af s');
+    end
+
     % Start forklaring
-    forklaringsOutput = ElektroMat.Forklaringssystem.startForklaring('Beregning af udgangssignal');
+    forklaringsOutput = startForklaring('Beregning af udgangssignal');
 
     % Vis input
-    forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 1, ...
+    forklaringsOutput = tilfoejTrin(forklaringsOutput, 1, ...
         'Identificer systemet og indgangssignalet', ...
         'Vi starter med at identificere systemets overføringsfunktion og indgangssignalets Laplacetransformation.', ...
-        ['H(s) = ' char(H_s) '\nX(s) = ' char(X_s)]);
+        ['H(s) = ' char(H_s) char(10) 'X(s) = ' char(X_s)]);
 
     % Multiplicer for at få Y(s)
     Y_s = H_s * X_s;
     Y_s_simpel = simplify(Y_s);
 
-    forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 2, ...
+    forklaringsOutput = tilfoejTrin(forklaringsOutput, 2, ...
         'Beregn udgangssignalets Laplacetransformation', ...
         'I frekvensdomænet er udgangssignalet produktet af overføringsfunktionen og indgangssignalet.', ...
-        ['Y(s) = H(s) · X(s) = ' char(Y_s) '\nForenklet: Y(s) = ' char(Y_s_simpel)]);
+        ['Y(s) = H(s) · X(s) = ' char(Y_s) char(10) 'Forenklet: Y(s) = ' char(Y_s_simpel)]);
 
-    % Partialbrøkopløsning
+    % Forbered partialbrøkopløsning information
     [num, den] = numden(Y_s_simpel);
-    forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 3, ...
+    forklaringsOutput = tilfoejTrin(forklaringsOutput, 3, ...
         'Forbered partialbrøkopløsning', ...
         'For at finde den inverse Laplacetransformation, skal vi først udføre en partialbrøkopløsning.', ...
         ['Y(s) = ' char(num) ' / ' char(den)]);
@@ -62,57 +71,33 @@ function [y, forklaringsOutput] = beregnUdgangssignalMedForklaring(H_s, X_s, s, 
             end
         end
         
-        forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 4, ...
+        forklaringsOutput = tilfoejTrin(forklaringsOutput, 4, ...
             'Udfør partialbrøkopløsning', ...
             'Vi opløser den rationelle funktion i simple brøker.', ...
             ['Y(s) = ' partial_str]);
     catch
-        forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, 4, ...
+        forklaringsOutput = tilfoejTrin(forklaringsOutput, 4, ...
             'Partialbrøkopløsning', ...
             'Partialbrøkopløsningen er kompleks og kræver symbolsk beregning.', ...
             'Vi fortsætter med direkte invers Laplacetransformation.');
     end
 
-    % Find den inverse Laplacetransformation
-    [y, inv_forklaring] = ElektroMatBibTrinvis.inversLaplaceMedForklaring(Y_s_simpel, s, t);
+    % Find den inverse Laplacetransformation med konsistent kausalitetshåndtering
+    [y, inv_forklaring] = ElektroMat.InversLaplace.inversLaplaceMedForklaring(Y_s_simpel, s, t);
 
     % Tilføj yderligere trin fra den inverse Laplacetransformation
+    start_trin = 5;
     for i = 2:length(inv_forklaring.trin)
-        forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, i+3, ...
+        forklaringsOutput = tilfoejTrin(forklaringsOutput, start_trin + i - 2, ...
             inv_forklaring.trin{i}.titel, ...
             inv_forklaring.trin{i}.tekst, ...
             inv_forklaring.trin{i}.formel);
     end
 
-    % TILFØJET: Sikre at kausalitet er inkluderet i udgangssignalet
-    % (Denne kode er kun nødvendig hvis inversLaplaceMedForklaring ikke allerede tilføjer u(t))
-    if ~has(y, 'u') && ~has(y, 'heaviside')
-        try
-            syms u;
-            y_kausal = y * u(t);
-            
-            forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, ...
-                length(forklaringsOutput.trin) + 1, ...
-                'Sikre kausalt udgangssignal', ...
-                'Vi sikrer at udgangssignalet er kausalt ved at tilføje enhedstrinfunktionen.', ...
-                ['y(t) = ' char(y_kausal)]);
-            
-            y = y_kausal;
-        catch
-            % Hvis der opstår problemer med at definere symbolsk u(t), prøv med heaviside
-            y_kausal = y * heaviside(t);
-            
-            forklaringsOutput = ElektroMat.Forklaringssystem.tilfoejTrin(forklaringsOutput, ...
-                length(forklaringsOutput.trin) + 1, ...
-                'Sikre kausalt udgangssignal', ...
-                'Vi sikrer at udgangssignalet er kausalt ved at tilføje enhedstrinfunktionen.', ...
-                ['y(t) = ' char(y_kausal)]);
-            
-            y = y_kausal;
-        end
-    end
+    % KONSISTENT KAUSALITETSHÅNDTERING - dette sker nu automatisk i inversLaplaceMedForklaring
+    % Så vi behøver ikke at gøre det igen her
 
     % Afslut forklaringen
-    forklaringsOutput = ElektroMat.Forklaringssystem.afslutForklaring(forklaringsOutput, ...
+    forklaringsOutput = afslutForklaring(forklaringsOutput, ...
         ['Udgangssignalet er y(t) = ' char(y)]);
 end
