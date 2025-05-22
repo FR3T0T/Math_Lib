@@ -112,18 +112,22 @@ function [ftype, params] = analyserFunktion(f, t)
         % Hvis t*exp detektion fejler, fortsæt med andre checks
     end
     
-    % Tjek for polynom
+    % Tjek for polynom - MED FORBEDRET FEJLHÅNDTERING
     try
-        [c, terms] = coeffs(f, t);
-        if ~isempty(c) && all(arrayfun(@(x) ~has(x, t), c))
-            % Det er et polynom
-            ftype = 'polynom';
-            params.grad = length(c) - 1;
-            params.koef = c;
-            return;
+        % Undgå polynom-analyse for komplekse funktioner med specielle funktioner
+        f_str = char(f);
+        if ~contains(f_str, 'heaviside') && ~contains(f_str, 'dirac') && ~contains(f_str, 'Heaviside')
+            [c, terms] = coeffs(f, t);
+            if ~isempty(c) && all(arrayfun(@(x) ~has(x, t), c))
+                % Det er et polynom
+                ftype = 'polynom';
+                params.grad = length(c) - 1;
+                params.koef = c;
+                return;
+            end
         end
     catch
-        % Ikke et polynom, fortsæt
+        % Ikke et polynom eller for kompleks - fortsæt til næste tjek
     end
     
     % Tjek for ren eksponentialfunktion
