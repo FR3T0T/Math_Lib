@@ -80,6 +80,9 @@ classdef ElektroMatBibTrinvis
         function [series_trig, forklaringsOutput] = fourierRaekkeOmskrivningMedForklaring(cn, t, T, N)
             [series_trig, forklaringsOutput] = ElektroMat.Fourier.fourierRaekkeOmskrivningMedForklaring(cn, t, T, N);
         end
+        function [f, forklaringsOutput] = inverseFourierMedForklaring(F, omega, t)
+            [f, forklaringsOutput] = ElektroMat.Fourier.inverseFourierMedForklaring(F, omega, t);
+        end
         
         %% FUNKTIONSANALYSEFUNKTIONER %%
         function [ftype, params] = analyserFunktion(f, t)
