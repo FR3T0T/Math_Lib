@@ -1,22 +1,26 @@
 function [resultat, forklaringsOutput] = dimensionerKabel(Ib, In, Ca, Cg, Ci, kabeltype)
-    % Indlæs kabeldatabase
+    % Indlæs kabeldatabase (brug kun standard data for at undgå Excel fejl)
     persistent kabel_database;
     if isempty(kabel_database)
-        kabel_database = ElDim.Database.indlaesKabelData();
+        kabel_database = ElDim.Database.indlaesKabelData(false); % false = skip Excel
     end
     
     forklaringsOutput = ElDim.Forklaring.startForklaring('Kabeldimensionering');
     
-    % Kabeltype navne
-    kabel_type_navne = {'NYM', 'PFXP', 'NYY-J', 'NHXH'};
-    if kabeltype > length(kabel_type_navne)
+    % FIX: Kabeltype navne - struct field navne og display navne
+    kabel_type_struct = {'NYM', 'PFXP', 'NYY_J', 'NHXH'};  % Struct field navne
+    kabel_type_display = {'NYM', 'PFXP', 'NYY-J', 'NHXH'}; % Display navne
+    
+    if kabeltype > length(kabel_type_struct)
         error('Ugyldigt kabeltype nummer: %d', kabeltype);
     end
-    valgt_kabel_type = kabel_type_navne{kabeltype};
+    
+    valgt_kabel_struct = kabel_type_struct{kabeltype};   % Til database lookup
+    valgt_kabel_display = kabel_type_display{kabeltype}; % Til display
     
     forklaringsOutput = ElDim.Forklaring.tilfoejTrin(forklaringsOutput, 1, ...
         'Indlæs parametre', ...
-        sprintf('Driftsstrøm Ib = %.2f A, Sikringsstrøm In = %.2f A, Kabeltype: %s', Ib, In, valgt_kabel_type), ...
+        sprintf('Driftsstrøm Ib = %.2f A, Sikringsstrøm In = %.2f A, Kabeltype: %s', Ib, In, valgt_kabel_display), ...
         sprintf('Korrektionsfaktorer: Ca=%.2f, Cg=%.2f, Ci=%.2f', Ca, Cg, Ci));
     
     % Beregn minimum belastningsevne
@@ -27,8 +31,8 @@ function [resultat, forklaringsOutput] = dimensionerKabel(Ib, In, Ca, Cg, Ci, ka
         'Iz skal kunne bære driftsstrømmen med sikkerhedsfaktor og korrektioner', ...
         sprintf('Iz,min = (Ib × 1.45) / (Ca × Cg × Ci) = %.2f A', Iz_min));
     
-    % Find passende kabel fra database
-    data = kabel_database.(valgt_kabel_type);
+    % Find passende kabel fra database - brug struct field navn
+    data = kabel_database.(valgt_kabel_struct);
     valgt_areal = '';
     valgt_Iz = 0;
     valgt_producent = '';
@@ -47,7 +51,7 @@ function [resultat, forklaringsOutput] = dimensionerKabel(Ib, In, Ca, Cg, Ci, ka
     if ~isempty(valgt_areal)
         forklaringsOutput = ElDim.Forklaring.tilfoejTrin(forklaringsOutput, 3, ...
             'Vælg kabelareal fra database', ...
-            sprintf('Første kabelareal der opfylder krav: %s mm² (%s %s)', valgt_areal, valgt_kabel_type, valgt_producent), ...
+            sprintf('Første kabelareal der opfylder krav: %s mm² (%s %s)', valgt_areal, valgt_kabel_display, valgt_producent), ...
             sprintf('Iz = %.1f A ≥ %.2f A ✓', valgt_Iz, Iz_min));
         
         % Kontroller In ≤ Iz
@@ -63,12 +67,12 @@ function [resultat, forklaringsOutput] = dimensionerKabel(Ib, In, Ca, Cg, Ci, ka
             sprintf('In (%.1f A) ≤ Iz (%.1f A): %s', In, valgt_Iz, status));
         
         resultat = struct('areal', valgt_areal, 'Iz', valgt_Iz, 'status', status, ...
-                         'kabeltype', valgt_kabel_type, 'producent', valgt_producent);
+                         'kabeltype', valgt_kabel_display, 'producent', valgt_producent);
     else
         resultat = struct('areal', 'FEJL', 'Iz', 0, 'status', 'Intet kabel kan klare belastningen', ...
-                         'kabeltype', valgt_kabel_type, 'producent', '');
+                         'kabeltype', valgt_kabel_display, 'producent', '');
     end
     
     forklaringsOutput = ElDim.Forklaring.afslutForklaring(forklaringsOutput, ...
-        sprintf('Kabelareal: %s mm² %s (Iz = %.1f A)', resultat.areal, valgt_kabel_type, resultat.Iz));
+        sprintf('Kabelareal: %s mm² %s (Iz = %.1f A)', resultat.areal, valgt_kabel_display, resultat.Iz));
 end

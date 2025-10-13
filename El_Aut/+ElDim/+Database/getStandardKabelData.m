@@ -1,6 +1,11 @@
 function kabel_data = getStandardKabelData(kabel_type)
     % Standard data hvis Excel-filer ikke findes
     
+    % FIX: Håndter både 'NYY-J' og 'NYY_J' formater
+    if strcmp(kabel_type, 'NYY_J')
+        kabel_type = 'NYY-J';
+    end
+    
     switch kabel_type
         case 'NYM'
             kabel_data.tvaersnit = {'1.5', '2.5', '4', '6', '10', '16', '25', '35'};
@@ -15,6 +20,11 @@ function kabel_data = getStandardKabelData(kabel_type)
         case 'NYY-J'
             kabel_data.tvaersnit = {'1.5', '2.5', '4', '6', '10', '16', '25', '35'};
             kabel_data.belastningsevne = [13.5, 18, 24, 31, 42, 56, 73, 90];
+            kabel_data.modstand = [12.1, 7.41, 4.61, 3.08, 1.83, 1.15, 0.72, 0.524];
+            
+        case 'NHXH'
+            kabel_data.tvaersnit = {'1.5', '2.5', '4', '6', '10', '16', '25', '35'};
+            kabel_data.belastningsevne = [16.5, 22, 29, 37, 51, 68, 89, 110];
             kabel_data.modstand = [12.1, 7.41, 4.61, 3.08, 1.83, 1.15, 0.72, 0.524];
             
         otherwise

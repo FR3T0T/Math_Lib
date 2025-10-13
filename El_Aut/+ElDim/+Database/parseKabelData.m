@@ -16,19 +16,41 @@ function kabel_data = parseKabelData(raw_data)
     for i = 2:size(raw_data, 1)
         row = raw_data(i, :);
         
+        % FIX: Meget robust check for tomme rækker
+        cell_value = row{1};
+        
+        % Check om cellen er tom på flere måder
+        should_skip = false;
+        
+        if isempty(cell_value)
+            should_skip = true;
+        elseif isnumeric(cell_value)
+            if isscalar(cell_value) && isnan(cell_value)
+                should_skip = true;
+            end
+        elseif ischar(cell_value)
+            if isempty(cell_value) || strcmp(cell_value, 'NaN') || strcmp(cell_value, '')
+                should_skip = true;
+            end
+        elseif isstring(cell_value)
+            if isempty(cell_value) || strcmp(cell_value, 'NaN') || strcmp(cell_value, "")
+                should_skip = true;
+            end
+        end
+        
         % Spring tomme rækker over
-        if isempty(row{1}) || isnan(row{1})
+        if should_skip
             continue;
         end
         
         % Udtræk data baseret på kolonnepositioner
-        tvaersnit = num2str(row{1});
+        tvaersnit = num2str(cell_value);
         
-        % Find relevante kolonner (tilpas baseret på din Excel struktur)
-        belastningsevne = parseNumeric(row, headers, 'Belastningsevne');
-        modstand = parseNumeric(row, headers, 'Ledermodstand');
-        max_temp = parseNumeric(row, headers, 'Maksimal temperatur');
-        producent = parseText(row, headers, 'Producent');
+        % Find relevante kolonner
+        belastningsevne = ElDim.Database.parseNumeric(row, headers, 'Belastningsevne');
+        modstand = ElDim.Database.parseNumeric(row, headers, 'Ledermodstand');
+        max_temp = ElDim.Database.parseNumeric(row, headers, 'Maksimal temperatur');
+        producent = ElDim.Database.parseText(row, headers, 'Producent');
         
         % Tilføj til struktur
         kabel_data.tvaersnit{end+1} = tvaersnit;

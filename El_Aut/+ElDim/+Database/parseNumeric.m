@@ -1,6 +1,7 @@
 function value = parseNumeric(row, headers, col_name)
     % Find kolonne baseret på header navn
-    col_idx = findColumnIndex(headers, col_name);
+    % KRITISK FIX: Tilføj fuld namespace reference
+    col_idx = ElDim.Database.findColumnIndex(headers, col_name);
     
     if col_idx > 0 && col_idx <= length(row)
         value = row{col_idx};

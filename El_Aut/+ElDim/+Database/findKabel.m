@@ -1,6 +1,11 @@
 function [belastningsevne, modstand, producent] = findKabel(kabel_database, kabel_type, tvaersnit)
     % FINDKABEL Finder specifik kabel i databasen
     
+    % FIX: Konverter display navn til struct field navn
+    if strcmp(kabel_type, 'NYY-J')
+        kabel_type = 'NYY_J';
+    end
+    
     if ~isfield(kabel_database, kabel_type)
         error('Kabeltype %s ikke fundet i database', kabel_type);
     end
